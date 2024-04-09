@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="b2fe04dd-9a14-41c8-a844-8b94adc14b73" name="Changes" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="tsconfig.json" />
+        <option value="JavaScript File" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitLabMergeRequestsSettings">{}</component>
+  <component name="GithubPullRequestsUISettings">{}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 0
+}</component>
+  <component name="ProjectId" id="2eB1XPUNYDoa1LPaIvLOhHJ9ZjX" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Jest.creates.edit_tasks_in_list.executor": "Run",
+    "Jest.creates.map_tasks_in_list (1).executor": "Run",
+    "Jest.creates.map_tasks_in_list.executor": "Run",
+    "Jest.edit_tasks_in_list.test.js.executor": "Run",
+    "Jest.map_tasks_in_list.test.js.executor": "Run",
+    "Jest.oauth2 app.can fetch an access token.executor": "Run",
+    "Jest.oauth2 app.executor": "Run",
+    "Jest.oauth2 app.generates an authorize URL.executor": "Run",
+    "Jest.triggers.list_airtable_bases.executor": "Run",
+    "Jest.triggers.list_airtable_tables.executor": "Run",
+    "Jest.triggers.list_tasklists.executor": "Run",
+    "Mocha.triggers.list_tasklists.executor": "Run",
+    "Node.js.edit_tasks_in_list.js.executor": "Run",
+    "Node.js.index.js.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "main",
+    "javascript.nodejs.core.library.configured.version": "21.6.1",
+    "javascript.nodejs.core.library.typings.version": "20.11.30",
+    "last_opened_file_path": "/home/mohammed/Desktop/zapier/to-do-manager",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs.jest.jest_package": "/home/mohammed/Desktop/zapier/to-do-manager/node_modules/jest",
+    "nodejs.mocha.mocha_node_package_dir": "/home/mohammed/Desktop/zapier/to-do-manager/node_modules/mocha",
+    "nodejs_interpreter_path": "node",
+    "nodejs_package_manager_path": "npm",
+    "npm.test.executor": "Run",
+    "npm.zapier-build.executor": "Run",
+    "settings.editor.selected.configurable": "preferences.lookFeel",
+    "ts.external.directory.path": "/home/mohammed/.local/share/JetBrains/Toolbox/apps/WebStorm/ch-0/233.14015.89/plugins/javascript-impl/jsLanguageServicesImpl/external",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/dist" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$/draft" />
+      <recent name="$PROJECT_DIR$/src" />
+      <recent name="$PROJECT_DIR$/kit/foundations/microsoft/todo" />
+      <recent name="$PROJECT_DIR$/kit/foundations/microsoft" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Jest.creates.map_tasks_in_list">
+    <configuration name="creates.edit_tasks_in_list" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
+      <node-interpreter value="project" />
+      <jest-package value="$PROJECT_DIR$/node_modules/jest" />
+      <working-dir value="$PROJECT_DIR$" />
+      <envs />
+      <scope-kind value="SUITE" />
+      <test-file value="$PROJECT_DIR$/src/test/creates/edit_tasks_in_list.test.js" />
+      <test-names>
+        <test-name value="creates.edit_tasks_in_list" />
+      </test-names>
+      <method v="2" />
+    </configuration>
+    <configuration name="creates.map_tasks_in_list" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
+      <node-interpreter value="project" />
+      <jest-package value="$PROJECT_DIR$/node_modules/jest" />
+      <working-dir value="$PROJECT_DIR$" />
+      <envs />
+      <scope-kind value="SUITE" />
+      <test-file value="$PROJECT_DIR$/src/test/creates/map_tasks_in_list.test.js" />
+      <test-names>
+        <test-name value="creates.map_tasks_in_list" />
+      </test-names>
+      <method v="2" />
+    </configuration>
+    <configuration name="edit_tasks_in_list.test.js" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
+      <node-interpreter value="project" />
+      <jest-package value="$PROJECT_DIR$/node_modules/jest" />
+      <working-dir value="$PROJECT_DIR$" />
+      <envs />
+      <scope-kind value="TEST_FILE" />
+      <test-file value="$PROJECT_DIR$/src/test/creates/edit_tasks_in_list.test.js" />
+      <method v="2" />
+    </configuration>
+    <configuration name="map_tasks_in_list.test.js" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
+      <node-interpreter value="project" />
+      <jest-package value="$PROJECT_DIR$/node_modules/jest" />
+      <working-dir value="$PROJECT_DIR$" />
+      <envs />
+      <scope-kind value="TEST_FILE" />
+      <test-file value="$PROJECT_DIR$/src/test/creates/map_tasks_in_list.test.js" />
+      <method v="2" />
+    </configuration>
+    <configuration name="index.js" type="NodeJSConfigurationType" temporary="true" nameIsGenerated="true" node-parameters="--env-file=../.env" path-to-js-file="$PROJECT_DIR$/playground/index.js" working-dir="$PROJECT_DIR$/playground">
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Jest.edit_tasks_in_list.test.js" />
+      <item itemvalue="Jest.map_tasks_in_list.test.js" />
+      <item itemvalue="Jest.creates.edit_tasks_in_list" />
+      <item itemvalue="Jest.creates.map_tasks_in_list" />
+      <item itemvalue="Node.js.index.js" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Jest.creates.map_tasks_in_list" />
+        <item itemvalue="Jest.creates.edit_tasks_in_list" />
+        <item itemvalue="Node.js.index.js" />
+        <item itemvalue="Jest.map_tasks_in_list.test.js" />
+        <item itemvalue="Jest.edit_tasks_in_list.test.js" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-1d06a55b98c1-74d2a5396914-JavaScript-WS-241.14494.109" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="b2fe04dd-9a14-41c8-a844-8b94adc14b73" name="Changes" comment="" />
+      <created>1711363196498</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1711363196498</updated>
+      <workItem from="1711363197673" duration="32294000" />
+      <workItem from="1711464213846" duration="150429000" />
+      <workItem from="1711986616416" duration="32007000" />
+      <workItem from="1712078290515" duration="2548000" />
+      <workItem from="1712087176519" duration="7953000" />
+      <workItem from="1712155406890" duration="145876000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>

@@ -1,0 +1,38 @@
+{
+  "name": "to-do-manager",
+  "version": "1.0.1",
+  "description": "To Do Manager is a tool to sync tasks between Microsoft To Do and Notion database",
+  "main": "index.js",
+  "scripts": {
+    "zapier-build": "rm -rf dist && babel src --out-dir dist",
+    "zapier-dev": "rm -rf dist && babel src --out-dir dist --watch",
+    "prepare": "npm run zapier-build",
+    "pretest": "npm run zapier-build",
+    "test": "jest lib/test",
+    "_zapier-build": "npm run zapier-build"
+  },
+  "engines": {
+    "node": ">=v18",
+    "npm": ">=5.6.0"
+  },
+  "dependencies": {
+    "@babel/preset-env": "^7.24.3",
+    "@microsoft/microsoft-graph-client": "^3.0.7",
+    "airtable": "^0.12.2",
+    "cross-fetch": "^4.0.0",
+    "deep-object-diff": "^1.1.9",
+    "lodash": "^4.17.21",
+    "uuid": "^9.0.1",
+    "zapier-platform-core": "15.6.2"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.24.1",
+    "@babel/core": "^7.24.3",
+    "@microsoft/microsoft-graph-types": "^2.40.0",
+    "jest": "^29.6.0"
+  },
+  "private": true,
+  "zapier": {
+    "convertedByCLIVersion": "15.5.3"
+  }
+}
