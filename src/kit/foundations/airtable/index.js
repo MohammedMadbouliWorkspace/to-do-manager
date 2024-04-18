@@ -58,6 +58,23 @@ class Table {
         return returnFirst ? records.at(0) : records
     }
 
+    getByArguments = async (args, returnFirst = false) => {
+        let records
+
+            records = await this._client.base(this._baseId).table(this.id).select(
+                {
+                    ...args,
+                    ...(returnFirst ? {maxRecords: 1} : {})
+                }
+            ).all()
+
+            for (const record of records) {
+                this._cache.set([this._cacheIdPrefix, record?.id].join(":ID:"), record)
+            }
+
+        return returnFirst ? records.at(0) : records
+    }
+
     getFirst = async (query) =>
         !Array.isArray(query) && (typeof query === 'object') ?
             (

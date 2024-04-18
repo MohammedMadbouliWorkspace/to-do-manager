@@ -1,7 +1,17 @@
-const { Request } = require("cross-fetch")
+const {Request} = require("cross-fetch")
+const {Readable} = require("node:stream")
 
 const {validateAccessToken} = require("../../../../microsoft/clients/graph/tools");
 const {BatchResponseContent} = require("@microsoft/microsoft-graph-client");
+
+class IterationBrakeStream extends Readable {
+    constructor(options) {
+        super(options);
+    }
+
+    _read(size) {
+    }
+}
 
 class ChecklistItem {
     constructor(id, _listId, _taskId, _graph) {
@@ -81,9 +91,60 @@ class TaskList {
 
     task = (id) => new Task(id, this.id, this._graph)
 
-    tasks = async () => {
-        const {value} = await this._graph.api(this._tasksPath).get()
-        return value
+    async* _tasksGenerator(pageSize, generationBrakeStream, _nextURL) {
+        let brake = false
+
+        generationBrakeStream?.on(
+            "data",
+            () => {
+                brake = true
+            }
+        )
+
+        const {value, "@odata.nextLink": nextURL} = await this._graph.api(_nextURL || this._tasksPath)
+            .orderby("lastModifiedDateTime desc")
+            .top(pageSize)
+            .get()
+
+        for (const task of value) {
+            yield task
+            if (brake) {
+                yield false
+                return;
+            }
+        }
+
+        if (nextURL) {
+            yield* await this._tasksGenerator(pageSize, generationBrakeStream, nextURL)
+        } else {
+            yield false
+        }
+    }
+
+    async* tasks(pageSize, callback = async () => false) {
+        const generationBrakeStream = new IterationBrakeStream()
+        let page = []
+
+        for await (const task of this._tasksGenerator(pageSize, generationBrakeStream)) {
+            if (task) page.push(task)
+
+            if (page.length === pageSize) {
+
+                yield page
+
+                if (await callback(page)) {
+                    generationBrakeStream.push("")
+                    return;
+                }
+
+                page = []
+            }
+
+            if (!task && page.length) {
+                await callback(page)
+                yield page
+            }
+        }
     }
 
     get = async () => await this._graph.api(this._path).get()

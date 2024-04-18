@@ -170,7 +170,12 @@ module.exports = {
                 data: microsoftData.map(
                     ({body}) => body
                 ).filter(
-                    (body => !_.isEmpty(body))
+                    (
+                        body => {
+                            const {error} = body
+                            return !_.isEmpty(body) && !error
+                        }
+                    )
                 )
             }
         },

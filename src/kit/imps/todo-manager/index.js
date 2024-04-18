@@ -7,7 +7,7 @@ const {createMeBatchStep} = require("../../../microsoft/clients/graph/tools");
 const {Airtable} = require("../../foundations/airtable");
 const {Todo} = require("../../foundations/microsoft/todo");
 const createGraphClient = require("../../../microsoft/clients/graph");
-const {detailedDiff} = require("deep-object-diff");
+const {detailedDiff, updatedDiff} = require("deep-object-diff");
 
 class TodoManagerBase {
     constructor(
@@ -18,7 +18,8 @@ class TodoManagerBase {
                 apiKey: airtableAPIKey,
                 baseId: airtableBaseId,
                 idsTableId: airtableIdsTableId,
-                dataTableId: airtableDataTableId
+                dataTableId: airtableDataTableId,
+                syncCheckpointsTableId: airtableSyncCheckpointsTableId
             },
             msTodoListId,
             timeZone
@@ -43,6 +44,7 @@ class TodoManagerBase {
         this._airtableBaseId = airtableBaseId
         this._airtableIdsTableId = airtableIdsTableId
         this._airtableDataTableId = airtableDataTableId
+        this._airtableSyncCheckpointsTableId = airtableSyncCheckpointsTableId
         this._msTodoListId = msTodoListId
         this._timeZone = timeZone
         this._batchStepCreators = {
@@ -145,10 +147,10 @@ class TodoManagerBase {
         }
     }
 
-    changeViaBatch = async (msBatchRequestContentsGenerator, extension = null, returnAsEntries = true) => {
+    changeViaBatch = async (msBatchRequestContentsGenerator, extension = null, returnAsEntries = true, extConnection = ["id", "id"]) => {
         let fullRes = []
 
-        for(const msBatchRequestContent of msBatchRequestContentsGenerator) {
+        for (const msBatchRequestContent of msBatchRequestContentsGenerator) {
             const res = await asyncIter2Array(
                 await (
                     await (
@@ -209,8 +211,8 @@ class TodoManagerBase {
             Action.connect(
                 fullRes,
                 extension,
-                "id",
-                "id",
+                extConnection?.at(0),
+                extConnection?.at(1),
                 "flat"
             ).map(
                 ([id, resItem, extItem]) => (
@@ -276,7 +278,7 @@ class TodoManagerBase {
             .bulkDelete(recordIds)
 }
 
-class TodoManagerDetector extends TodoManagerBase {
+class TodoManagerTasksHandler extends TodoManagerBase {
     constructor(props) {
         super(props);
         this.notionTasksList = []
@@ -394,7 +396,7 @@ class TodoManagerDetector extends TodoManagerBase {
     }
 }
 
-class TodoManagerEditedTasksDetector extends TodoManagerDetector {
+class TodoManagerEditedTasksHandler extends TodoManagerTasksHandler {
     constructor(props, _sub = false) {
         super(props);
         this._props = props
@@ -718,7 +720,7 @@ class TodoManagerEditedTasksDetector extends TodoManagerDetector {
         }
 
         if (subNotionTasksList.length) {
-            const subEditedTaskDetector = new TodoManagerEditedTasksDetector(this._props, true)
+            const subEditedTaskDetector = new TodoManagerEditedTasksHandler(this._props, true)
             subEditedTaskDetector.provide(subNotionTasksList)
             yield* subEditedTaskDetector.msInputs()
         }
@@ -726,7 +728,7 @@ class TodoManagerEditedTasksDetector extends TodoManagerDetector {
     }
 }
 
-class TodoManagerNewTasksDetector extends TodoManagerDetector {
+class TodoManagerNewTasksHandler extends TodoManagerTasksHandler {
     constructor(props) {
         super(props);
     }
@@ -820,11 +822,685 @@ class TodoManagerNewTasksDetector extends TodoManagerDetector {
     }
 }
 
+class TodoManagerTasksDetector extends TodoManagerBase {
+    constructor(props) {
+        super(props);
+        this._checkpointDate = undefined
+    }
+
+    _getCheckpointDate = async () => {
+        const {fields: {date} = {}} = await this._airtable
+            .base(this._airtableBaseId)
+            .table(this._airtableSyncCheckpointsTableId)
+            .getByArguments(
+                {
+                    sort: [
+                        {
+                            field: "date",
+                            direction: "desc"
+                        }
+                    ]
+                },
+                true
+            ) || {}
+
+        this._checkpointDate = date ? new Date(date) : undefined
+
+        return this._checkpointDate
+    }
+
+    _setCheckpointDate = async () => {
+        const now = new Date()
+
+        const [{fields: {date} = {}}] = await this._airtable
+            .base(process.env.AIRTABLE_BASE_ID)
+            .table(process.env.AIRTABLE_SYNC_CHECKPOINTS_TABLE_ID)
+            .bulkCreate(
+                [
+                    {
+                        date: now
+                    }
+                ]
+            ) || {}
+
+        this._checkpointDate = date ? now : undefined
+
+        return this._checkpointDate
+    }
+
+    async* _generatePatches(connectedDataset, unconnectedDataset) {
+        const checklistItemBendingEdits = []
+        const taskBendingIncompleteEdits = []
+        const taskBendingEdits = []
+        const taskBendingIncompleteDeletes = []
+        const taskBendingDeletes = []
+
+        for (const {
+            microsoftId: parentMicrosoftId,
+            notionId,
+            airtableId,
+            updatedProps: {
+                title,
+                status,
+                detailedTitle = {},
+                startDateTime,
+                dueDateTime
+            },
+            updatedChecklistItems: {
+                past: pastChecklistItems,
+                edited: editedChecklistItems,
+                new: newChecklistItems
+            },
+            microsoftData
+        } of TodoManager._diffTodoTasksInCD(connectedDataset)) {
+
+            const checked = status === 'completed'
+
+            yield {
+                operation: "edit",
+                target: "notion",
+                type: "task",
+                ids: {
+                    notionId,
+                    microsoftId: parentMicrosoftId,
+                    airtableId,
+                },
+                data: {
+                    ...detailedTitle,
+                    ...(status !== undefined ? {checked} : {}),
+                    ...(
+                        startDateTime || dueDateTime ?
+                            {
+                                ...(startDateTime !== undefined ? {start: new Date(startDateTime).toJSON()} : {}),
+                                ...(dueDateTime !== undefined ? {end: new Date(dueDateTime).toJSON()} : {})
+                            } :
+                            {}
+                    )
+                },
+                syncData: {
+                    microsoftData: JSON.stringify(microsoftData)
+                }
+            }
+
+            taskBendingIncompleteEdits.push(
+                ...editedChecklistItems.map(
+                    ({id: microsoftId, displayName, isChecked}) => (
+                        {
+                            microsoftId,
+                            parentMicrosoftId,
+                            data: {
+                                ...(displayName !== undefined ? {title: displayName} : {}),
+                                ...(isChecked !== undefined ? {
+                                    status: isChecked ? "completed" : "notStarted",
+                                    checked: isChecked
+                                } : {})
+                            }
+                        }
+                    )
+                )
+            )
+
+            taskBendingIncompleteDeletes.push(
+                ...pastChecklistItems.map(
+                    ({id: microsoftId}) => (
+                        {
+                            microsoftId,
+                            parentMicrosoftId
+                        }
+                    )
+                )
+            )
+
+            for (const {id: microsoftId, displayName, isChecked} of newChecklistItems) {
+                yield {
+                    operation: "create",
+                    target: "notion",
+                    type: "task",
+                    ids: {
+                        microsoftId,
+                        parentNotionId: notionId,
+                        parentMicrosoftId
+                    },
+                    data: {
+                        ...(displayName !== undefined ? {title: displayName} : {}),
+                        ...(isChecked !== undefined ? {checked: isChecked} : {})
+                    },
+                    syncDataBending: true
+                }
+
+                yield {
+                    operation: "create",
+                    target: "microsoft",
+                    type: "task",
+                    ids: {
+                        microsoftId,
+                        parentNotionId: notionId,
+                        parentMicrosoftId
+                    },
+                    data: {
+                        ...(displayName !== undefined ? {title: displayName} : {}),
+                        ...(isChecked !== undefined ? {status: isChecked ? "completed" : "notStarted"} : {})
+                    }
+                }
+            }
+
+            if (title || status) {
+                checklistItemBendingEdits.push(
+                    {
+                        notionId,
+                        data: {
+                            ...(title !== undefined ? {displayName: title} : {}),
+                            ...(status !== undefined ? {isChecked: checked} : {})
+                        }
+                    }
+                )
+            }
+        }
+
+        for (const [, {data}, {fields: {notionId, microsoftId, parentMicrosoftId, parentNotionId}}] of Action.connect(
+            checklistItemBendingEdits,
+            await this._airtable
+                .base(this._airtableBaseId)
+                .table(this._airtableIdsTableId)
+                .getAll(
+                    {
+                        notionId: checklistItemBendingEdits.map(({notionId}) => notionId)
+                    }
+                ),
+            "notionId",
+            "fields.notionId",
+            "flat"
+        )) {
+            yield {
+                operation: "edit",
+                target: "microsoft",
+                type: "checklistItem",
+                ids: {
+                    notionId,
+                    parentNotionId,
+                    microsoftId,
+                    parentMicrosoftId,
+                },
+                data
+            }
+
+            yield {
+                operation: "get",
+                target: "microsoft",
+                type: "task",
+                ids: {
+                    notionId: parentNotionId,
+                    microsoftId: parentMicrosoftId
+                }
+            }
+        }
+
+        taskBendingEdits.push(
+            ...(
+                Action.connect(
+                    taskBendingIncompleteEdits,
+                    (
+                        await this._airtable
+                            .base(this._airtableBaseId)
+                            .table(this._airtableIdsTableId)
+                            .getAll(
+                                {
+                                    microsoftId: {
+                                        parentMicrosoftId: taskBendingIncompleteEdits.map(
+                                            (
+                                                {
+                                                    microsoftId,
+                                                    parentMicrosoftId
+                                                }
+                                            ) => [microsoftId, parentMicrosoftId])
+                                    }
+                                }
+                            )
+                    ),
+                    "microsoftId",
+                    "fields.microsoftId",
+                    "flat"
+                ).map(
+                    ([, {data}, {fields: {notionId}}]) => (
+                        {
+                            notionId,
+                            data
+                        }
+                    )
+                )
+            )
+        )
+
+        taskBendingDeletes.push(
+            ...(
+                Action.connect(
+                    taskBendingIncompleteDeletes,
+                    (
+                        await this._airtable
+                            .base(this._airtableBaseId)
+                            .table(this._airtableIdsTableId)
+                            .getAll(
+                                {
+                                    microsoftId: {
+                                        parentMicrosoftId: taskBendingIncompleteDeletes.map(
+                                            (
+                                                {
+                                                    microsoftId,
+                                                    parentMicrosoftId
+                                                }
+                                            ) => [microsoftId, parentMicrosoftId])
+                                    }
+                                }
+                            )
+                    ),
+                    "microsoftId",
+                    "fields.microsoftId",
+                    "flat"
+                ).map(
+                    ([, , {id: idsTableAirtableId, fields: {notionId}}]) => (
+                        {
+                            notionId,
+                            idsTableAirtableId
+                        }
+                    )
+                )
+            )
+        )
+
+        for (const [, {data}, {id: airtableId, fields: {notionId, microsoftId}}] of Action.connect(
+            taskBendingEdits,
+            await this._airtable
+                .base(this._airtableBaseId)
+                .table(this._airtableDataTableId)
+                .getAll(
+                    {
+                        notionId: taskBendingEdits.map(({notionId}) => notionId)
+                    }
+                ),
+            "notionId",
+            "fields.notionId",
+            "flat"
+        )) {
+            const {title, checked, status} = data
+
+            yield {
+                operation: "edit",
+                target: "notion",
+                type: "task",
+                ids: {
+                    notionId,
+                    microsoftId,
+                    airtableId,
+                },
+                data: {
+                    ...(title !== undefined ? TodoManager._covertTodoTaskTitleToObject(title) : {}),
+                    ...(status !== undefined ? {checked} : {}),
+                },
+                syncDataBending: true
+            }
+
+            yield {
+                operation: "edit",
+                target: "microsoft",
+                type: "task",
+                ids: {
+                    notionId,
+                    microsoftId,
+                    airtableId,
+                },
+                data: {
+                    ...(title !== undefined ? {title} : {}),
+                    ...(status !== undefined ? {status} : {}),
+                }
+            }
+        }
+
+        for (const [, {idsTableAirtableId}, {id: airtableId, fields: {notionId, microsoftId}}] of Action.connect(
+            taskBendingDeletes,
+            await this._airtable
+                .base(this._airtableBaseId)
+                .table(this._airtableDataTableId)
+                .getAll(
+                    {
+                        notionId: taskBendingDeletes.map(({notionId}) => notionId)
+                    }
+                ),
+            "notionId",
+            "fields.notionId",
+            "flat"
+        )) {
+            yield {
+                operation: "delete",
+                target: "notion",
+                type: "task",
+                ids: {
+                    notionId,
+                    microsoftId,
+                    idsTableAirtableId,
+                    airtableId,
+                }
+            }
+
+            yield {
+                operation: "delete",
+                target: "microsoft",
+                type: "task",
+                ids: {
+                    notionId,
+                    microsoftId,
+                    idsTableAirtableId,
+                    airtableId,
+                }
+            }
+        }
+
+        for (
+            const {
+                microsoftId: parentMicrosoftId,
+                microsoftData,
+                props: {
+                    status,
+                    detailedTitle = {},
+                    startDateTime,
+                    dueDateTime,
+                    checklistItems
+                }
+            } of TodoManager._prepareTodoTasksInUCD(unconnectedDataset)
+            ) {
+            const checked = status === 'completed'
+
+            yield {
+                operation: "create",
+                target: "notion",
+                type: "task",
+                ids: {
+                    microsoftId: parentMicrosoftId
+                },
+                data: {
+                    ...detailedTitle,
+                    ...(status !== undefined ? {checked} : {}),
+                    ...(
+                        startDateTime || dueDateTime ?
+                            {
+                                ...(startDateTime !== undefined ? {start: new Date(startDateTime).toJSON()} : {}),
+                                ...(dueDateTime !== undefined ? {end: new Date(dueDateTime).toJSON()} : {})
+                            } :
+                            {}
+                    )
+                },
+                syncData: {
+                    microsoftData: JSON.stringify(microsoftData)
+                }
+            }
+
+            for (const {id: microsoftId, displayName, isChecked} of checklistItems || []) {
+                yield {
+                    operation: "create",
+                    target: "notion",
+                    type: "task",
+                    ids: {
+                        microsoftId,
+                        parentMicrosoftId
+                    },
+                    data: {
+                        ...(displayName !== undefined ? {title: displayName} : {}),
+                        ...(isChecked !== undefined ? {checked: isChecked} : {})
+                    },
+                    syncDataBending: true
+                }
+
+                yield {
+                    operation: "create",
+                    target: "microsoft",
+                    type: "task",
+                    ids: {
+                        microsoftId,
+                        parentMicrosoftId
+                    },
+                    data: {
+                        ...(displayName !== undefined ? {title: displayName} : {}),
+                        ...(isChecked !== undefined ? {status: isChecked ? "completed" : "notStarted"} : {})
+                    }
+                }
+            }
+        }
+    }
+
+    get = async () => {
+        const checkpointDate = await this._getCheckpointDate()
+        const notionPatchesGroups = {
+            toEdit: [],
+            toCreate: [],
+            toDelete: [],
+            toRefresh: []
+        }
+        const cd = []
+        const ucd = []
+
+        await asyncIter2Array(
+            this._todo
+                .taskList(this._msTodoListId)
+                .tasks(
+                    5,
+                    async (page) => {
+
+                        const [unsyncedTasks, syncedTasks] = _.partition(
+                            page,
+                            ({lastModifiedDateTime: lastModifiedDateTimeJSON}) => {
+                                const lastModifiedDateTime = new Date(lastModifiedDateTimeJSON)
+                                return (lastModifiedDateTime > checkpointDate) || !checkpointDate
+                            }
+                        )
+
+                        const [_cd, _ucd] = Action.connect(
+                            unsyncedTasks,
+                            await this._airtable.base(this._airtableBaseId).table(this._airtableDataTableId).getAll(
+                                {
+                                    microsoftId: unsyncedTasks.map(({id}) => id)
+                                }
+                            ),
+                            "id",
+                            "fields.microsoftId",
+                            "flat",
+                            true
+                        )
+
+                        cd.push(
+                            ..._cd
+                        )
+
+                        ucd.push(
+                            ..._ucd
+                        )
+
+                        return syncedTasks?.length
+                    }
+                )
+        )
+
+        const patchesGroups = _.groupBy(
+            await asyncIter2Array(this._generatePatches(cd, ucd)),
+            ({operation, target, type}) => [operation, target, type].join("-")
+        )
+
+        const [editNotionTaskBending, editNotionTask] = _.partition(
+            patchesGroups?.['edit-notion-task'],
+            ({syncDataBending}) => syncDataBending
+        )
+
+        const [createNotionTaskBending, createNotionTask] = _.partition(
+            patchesGroups?.['create-notion-task'],
+            ({syncDataBending}) => syncDataBending
+        )
+
+        const deleteNotionTask = patchesGroups?.['delete-notion-task'] || []
+
+        const editMicrosoftTask = patchesGroups?.['edit-microsoft-task'] || []
+        const createMicrosoftTask = patchesGroups?.['create-microsoft-task'] || []
+
+        const getMicrosoftTask = uniquify(patchesGroups?.['get-microsoft-task'], "ids.notionId") || []
+        const editMicrosoftChecklistItem = patchesGroups?.['edit-microsoft-checklistItem'] || []
+        const deleteMicrosoftTask = patchesGroups?.['delete-microsoft-task'] || []
+
+        await this.changeViaBatch(
+            TodoManager._createMSBatchRequestContents(
+                editMicrosoftChecklistItem,
+                ({operation, type, ids: {notionId, parentNotionId, microsoftId, parentMicrosoftId}, data}) =>
+                    this._batchStepCreators?.[operation]?.[type]?.(
+                        {
+                            id: TodoManager._createBatchRequestId(parentNotionId, notionId),
+                            microsoftId,
+                            parentMicrosoftId,
+                            ...data
+                        }
+                    )
+            )
+        )
+
+        notionPatchesGroups.toEdit.push(
+            ...editNotionTask.map(
+                ({ids, data, syncData}) => ({ids, data, syncData})
+            ).concat(
+                Action.connect(
+                    editNotionTaskBending,
+                    await this.changeViaBatch(
+                        TodoManager._createMSBatchRequestContents(
+                            editMicrosoftTask,
+                            ({operation, type, ids: {notionId, microsoftId}, data}) =>
+                                this._batchStepCreators?.[operation]?.[type]?.(
+                                    {
+                                        id: notionId,
+                                        microsoftId,
+                                        ...data
+                                    }
+                                )
+                        ),
+                        null,
+                        false
+                    ),
+                    "ids.notionId",
+                    "id",
+                    "flat"
+                ).map(
+                    ([, {ids, data}, {body: microsoftData}]) => (
+                        {
+                            ids,
+                            data,
+                            syncData: {
+                                microsoftData: JSON.stringify(microsoftData)
+                            }
+                        }
+                    )
+                )
+            )
+        )
+
+        notionPatchesGroups.toCreate.push(
+            ...createNotionTask.map(
+                ({ids, data, syncData}) => ({ids, data, syncData})
+            ).concat(
+                Action.connect(
+                    createNotionTaskBending,
+                    await this.changeViaBatch(
+                        TodoManager._createMSBatchRequestContents(
+                            createMicrosoftTask,
+                            ({operation, type, ids: {microsoftId}, data}) =>
+                                this._batchStepCreators?.[operation]?.[type]?.(
+                                    {
+                                        id: microsoftId,
+                                        ...data
+                                    }
+                                )
+                        ),
+                        null,
+                        false
+                    ),
+                    "ids.microsoftId",
+                    "id",
+                    "flat"
+                ).map(
+                    ([, {ids, data}, {body: microsoftData}]) => (
+                        {
+                            ids,
+                            data,
+                            syncData: {
+                                microsoftData: JSON.stringify(microsoftData)
+                            }
+                        }
+                    )
+                )
+            )
+        )
+
+        await this.changeViaBatch(
+            TodoManager._createMSBatchRequestContents(
+                deleteMicrosoftTask,
+                ({operation, type, ids: {notionId, microsoftId}}) =>
+                    this._batchStepCreators?.[operation]?.[type]?.(
+                        {
+                            id: notionId,
+                            microsoftId
+                        }
+                    )
+            ),
+            null,
+            false
+        )
+
+        notionPatchesGroups.toDelete.push(
+            ...deleteNotionTask.map(
+                ({ ids }) => (
+                    {
+                        ids
+                    }
+                )
+            )
+        )
+
+        notionPatchesGroups.toRefresh.push(
+            ...(
+                await this.changeViaBatch(
+                    TodoManager._createMSBatchRequestContents(
+                        getMicrosoftTask,
+                        ({operation, type, ids: {notionId, microsoftId}, data}) =>
+                            this._batchStepCreators?.[operation]?.[type]?.(
+                                {
+                                    id: notionId,
+                                    microsoftId,
+                                    ...data
+                                }
+                            )
+                    ),
+                    getMicrosoftTask,
+                    false,
+                    ["id", "ids.notionId"]
+                )
+            ).map(
+                ({body: microsoftData, extension: {ids}}) => (
+                    {
+                        ids,
+                        syncData: {
+                            microsoftData: JSON.stringify(microsoftData)
+                        }
+                    }
+                )
+            )
+        )
+
+        if(cd.length) {
+            await this._setCheckpointDate()
+        }
+
+        return notionPatchesGroups
+    }
+}
+
 class TodoManager extends TodoManagerBase {
     constructor(props) {
         super(props);
-        this.asAddedTasks = new TodoManagerNewTasksDetector(props)
-        this.asEditedTasks = new TodoManagerEditedTasksDetector(props)
+        this.asAddedTasks = new TodoManagerNewTasksHandler(props)
+        this.asEditedTasks = new TodoManagerEditedTasksHandler(props)
+        this.tasksDelta = new TodoManagerTasksDetector(props)
     }
 
     static _createMSInputsList = (notionTasksList, timeZone) =>
@@ -906,7 +1582,7 @@ class TodoManager extends TodoManagerBase {
         mapCallback,
         hasDependencies = true
     ) {
-        for(const subArray of _.chunk(array, TodoManager.STEPS_LIMIT_PER_BATCH)) {
+        for (const subArray of _.chunk(array, TodoManager.STEPS_LIMIT_PER_BATCH)) {
             const msBatchRequestContent = new BatchRequestContent()
             const stepIds = []
 
@@ -948,6 +1624,21 @@ class TodoManager extends TodoManagerBase {
     }
 
     static _createBatchRequestId = (...args) => args.join("::::")
+
+    static _covertTodoTaskTitleToObject = (title) => {
+        const regex = /(?<emoji1>\p{Emoji})\s*(?<title1>.+)\s*|(?<title2>.+)\s(?<emoji2>\p{Emoji})|(?<emoji3>\p{Emoji})\s*|(?<title3>.+)\s*/gu;
+
+        const match = regex.exec(title);
+
+        if (match) {
+            const {emoji1, emoji2, emoji3, title1, title2, title3} = match.groups
+
+            return {
+                emoji: emoji1 || emoji2 || emoji3 || "",
+                title: title1 || title2 || title3 || "",
+            }
+        }
+    }
 
     static _diffNotionTasksInCD = function* (connectedDataset) {
         for (const [id, [current, [{fields: {notionData: pastAsJSON}}]]] of connectedDataset) {
@@ -1021,6 +1712,88 @@ class TodoManager extends TodoManagerBase {
                 }
             }
 
+        }
+    }
+
+    static _diffTodoTasksInCD = function* (connectedDataset) {
+        for (const [, current, {
+            id: airtableId,
+            fields: {notionId, microsoftId, microsoftData: pastAsJSON}
+        }] of connectedDataset) {
+            const past = JSON.parse(pastAsJSON)
+
+            const difference = updatedDiff(
+                past,
+                current
+            )
+
+            const [pastChecklistItems, restChecklistItems, newChecklistItems, editedChecklistItems] = diff(
+                past?.checklistItems,
+                current?.checklistItems,
+                "id"
+            )
+
+            const updates = _.merge(
+                _.pick(
+                    difference,
+                    [
+                        "status",
+                        "title",
+                        "startDateTime",
+                        "dueDateTime",
+                    ]
+                ),
+                difference?.title ? {detailedTitle: TodoManager._covertTodoTaskTitleToObject(difference?.title)} : {}
+            )
+
+            if (
+                !_.isEmpty(updates) ||
+                pastChecklistItems?.length ||
+                restChecklistItems?.length ||
+                newChecklistItems?.length ||
+                editedChecklistItems?.length
+            )
+
+                yield {
+                    microsoftId,
+                    notionId,
+                    airtableId,
+                    updatedProps: updates,
+                    updatedChecklistItems: {
+                        past: pastChecklistItems,
+                        rest: restChecklistItems,
+                        new: newChecklistItems,
+                        edited: editedChecklistItems
+                    },
+                    microsoftData: current,
+                }
+
+        }
+    }
+
+    static _prepareTodoTasksInUCD = function* (unconnectedDataset) {
+        for (const microsoftData of unconnectedDataset) {
+            const {id: microsoftId} = microsoftData
+
+            const updates = _.merge(
+                _.pick(
+                    microsoftData,
+                    [
+                        "status",
+                        "title",
+                        "startDateTime",
+                        "dueDateTime",
+                        "checklistItems"
+                    ]
+                ),
+                microsoftData?.title ? {detailedTitle: TodoManager._covertTodoTaskTitleToObject(microsoftData?.title)} : {}
+            )
+
+            yield {
+                microsoftId,
+                props: updates,
+                microsoftData
+            }
         }
     }
 

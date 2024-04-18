@@ -93,15 +93,16 @@ class Action {
         this._outPool.push(item)
     }
 
-    static connect = (arr1, arr2, iteratee1=x=>x, iteratee2=x=>x, option="flat") => {
+    static connect = (arr1, arr2, iteratee1 = x => x, iteratee2 = x => x, option = "flat", withUnconnected = false) => {
         const isFunction = (func) => typeof func === 'function';
 
-        iteratee1 = iteratee1 || (x=>x)
-        iteratee2 = iteratee2 || (x=>x)
+        iteratee1 = iteratee1 || (x => x)
+        iteratee2 = iteratee2 || (x => x)
 
         switch (option) {
             case "object":
                 const output1 = {};
+                const unconnectedItems1 = [];
                 arr1.forEach(item => {
                     const key = isFunction(iteratee1) ? iteratee1(item) : _.get(item, iteratee1);
                     const connections = arr2.filter(secondItem => {
@@ -109,14 +110,25 @@ class Action {
                         return value === key;
                     });
                     if (connections.length > 0) output1[key] = [item, connections];
+                    else if (withUnconnected) unconnectedItems1.push(item);
                 });
-                return output1;
+                const unconnectedItems2 = withUnconnected ? arr2.filter(secondItem => !output1[isFunction(iteratee2) ? iteratee2(secondItem) : _.get(secondItem, iteratee2)]) : [];
+                return withUnconnected ? [output1, unconnectedItems1, unconnectedItems2] : output1;
 
             case "entries":
-                return Object.entries(Action.connect(arr1, arr2, iteratee1, iteratee2, "object"));
+                const objectOutput = Action.connect(arr1, arr2, iteratee1, iteratee2, "object", withUnconnected)
+
+                if(withUnconnected) {
+                    const [connectedItems2, unconnectedItems1, unconnectedItems2] = objectOutput;
+                    return [Object.entries(connectedItems2), unconnectedItems1, unconnectedItems2];
+                } else {
+                    return Object.entries(objectOutput)
+                }
 
             case "flat":
                 const output3 = [];
+                const unconnectedItems3Arr1 = [];
+                const unconnectedItems3Arr2 = [];
                 arr2.forEach(secondItem => {
                     const valueFromSecondArray = isFunction(iteratee2) ? iteratee2(secondItem) : _.get(secondItem, iteratee2);
                     const correspondingItemsFromFirstArray = arr1.filter(firstItem => {
@@ -125,9 +137,24 @@ class Action {
                     });
                     if (correspondingItemsFromFirstArray.length > 0) {
                         correspondingItemsFromFirstArray.forEach(firstItem => output3.push([valueFromSecondArray, firstItem, secondItem]));
+                    } else if (withUnconnected) {
+                        unconnectedItems3Arr2.push(secondItem);
                     }
                 });
-                return output3;
+
+                if (withUnconnected) {
+                    arr1.forEach(firstItem => {
+                        const valueFromFirstArray = isFunction(iteratee1) ? iteratee1(firstItem) : _.get(firstItem, iteratee1);
+                        const correspondingItemsFromSecondArray = arr2.filter(secondItem => {
+                            const value = isFunction(iteratee2) ? iteratee2(secondItem) : _.get(secondItem, iteratee2);
+                            return value === valueFromFirstArray;
+                        });
+                        if (correspondingItemsFromSecondArray.length === 0) {
+                            unconnectedItems3Arr1.push(firstItem);
+                        }
+                    });
+                }
+                return withUnconnected ? [output3, unconnectedItems3Arr1, unconnectedItems3Arr2] : output3;
 
             default:
                 throw new Error('Invalid option.');

@@ -4,7 +4,19 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b2fe04dd-9a14-41c8-a844-8b94adc14b73" name="Changes" comment="" />
+    <list default="true" id="b2fe04dd-9a14-41c8-a844-8b94adc14b73" name="Changes" comment="Initial commit">
+      <change afterPath="$PROJECT_DIR$/src/test/triggers/tasks_delta.test.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/triggers/tasks_delta.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/creates/edit_tasks_in_list.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/creates/edit_tasks_in_list.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/creates/map_tasks_in_list.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/creates/map_tasks_in_list.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/kit/foundations/airtable/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/kit/foundations/airtable/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/kit/foundations/bulk/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/kit/foundations/bulk/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/kit/foundations/microsoft/todo/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/kit/foundations/microsoft/todo/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/kit/imps/todo-manager/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/kit/imps/todo-manager/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/kit/utils/iter/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/kit/utils/iter/index.js" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -21,8 +33,22 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;memm9999&quot;
+  }
+}</component>
+  <component name="GitHubPullRequestState">{
+  &quot;prStates&quot;: []
+}</component>
   <component name="GitLabMergeRequestsSettings">{}</component>
-  <component name="GithubPullRequestsUISettings">{}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/MohammedMadbouliWorkspace/to-do-manager.git&quot;,
+    &quot;accountId&quot;: &quot;585d51b9-20ca-46d7-a53e-1e6d453ee955&quot;
+  }
+}</component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 0
 }</component>
@@ -31,42 +57,48 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Jest.creates.edit_tasks_in_list.executor": "Run",
-    "Jest.creates.map_tasks_in_list (1).executor": "Run",
-    "Jest.creates.map_tasks_in_list.executor": "Run",
-    "Jest.edit_tasks_in_list.test.js.executor": "Run",
-    "Jest.map_tasks_in_list.test.js.executor": "Run",
-    "Jest.oauth2 app.can fetch an access token.executor": "Run",
-    "Jest.oauth2 app.executor": "Run",
-    "Jest.oauth2 app.generates an authorize URL.executor": "Run",
-    "Jest.triggers.list_airtable_bases.executor": "Run",
-    "Jest.triggers.list_airtable_tables.executor": "Run",
-    "Jest.triggers.list_tasklists.executor": "Run",
-    "Mocha.triggers.list_tasklists.executor": "Run",
-    "Node.js.edit_tasks_in_list.js.executor": "Run",
-    "Node.js.index.js.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "main",
-    "javascript.nodejs.core.library.configured.version": "21.6.1",
-    "javascript.nodejs.core.library.typings.version": "20.11.30",
-    "last_opened_file_path": "/home/mohammed/Desktop/zapier/to-do-manager",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs.jest.jest_package": "/home/mohammed/Desktop/zapier/to-do-manager/node_modules/jest",
-    "nodejs.mocha.mocha_node_package_dir": "/home/mohammed/Desktop/zapier/to-do-manager/node_modules/mocha",
-    "nodejs_interpreter_path": "node",
-    "nodejs_package_manager_path": "npm",
-    "npm.test.executor": "Run",
-    "npm.zapier-build.executor": "Run",
-    "settings.editor.selected.configurable": "preferences.lookFeel",
-    "ts.external.directory.path": "/home/mohammed/.local/share/JetBrains/Toolbox/apps/WebStorm/ch-0/233.14015.89/plugins/javascript-impl/jsLanguageServicesImpl/external",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;Jest.creates.edit_tasks_in_list.executor&quot;: &quot;Run&quot;,
+    &quot;Jest.creates.map_tasks_in_list (1).executor&quot;: &quot;Run&quot;,
+    &quot;Jest.creates.map_tasks_in_list.executor&quot;: &quot;Run&quot;,
+    &quot;Jest.edit_tasks_in_list.test.js.executor&quot;: &quot;Run&quot;,
+    &quot;Jest.map_tasks_in_list.test.js.executor&quot;: &quot;Run&quot;,
+    &quot;Jest.oauth2 app.can fetch an access token.executor&quot;: &quot;Run&quot;,
+    &quot;Jest.oauth2 app.executor&quot;: &quot;Run&quot;,
+    &quot;Jest.oauth2 app.generates an authorize URL.executor&quot;: &quot;Run&quot;,
+    &quot;Jest.triggers.list_airtable_bases.executor&quot;: &quot;Run&quot;,
+    &quot;Jest.triggers.list_airtable_tables.executor&quot;: &quot;Run&quot;,
+    &quot;Jest.triggers.list_tasklists.executor&quot;: &quot;Run&quot;,
+    &quot;Jest.triggers.list_tasklists.should run.executor&quot;: &quot;Run&quot;,
+    &quot;Jest.triggers.tasks_delta (1).executor&quot;: &quot;Run&quot;,
+    &quot;Jest.triggers.tasks_delta.executor&quot;: &quot;Run&quot;,
+    &quot;Jest.triggers.tasks_delta.should run.executor&quot;: &quot;Run&quot;,
+    &quot;Mocha.triggers.list_tasklists.executor&quot;: &quot;Run&quot;,
+    &quot;Node.js.edit_tasks_in_list.js.executor&quot;: &quot;Run&quot;,
+    &quot;Node.js.index.js.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;javascript.nodejs.core.library.configured.version&quot;: &quot;21.6.1&quot;,
+    &quot;javascript.nodejs.core.library.typings.version&quot;: &quot;20.11.30&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/mohammed/Desktop/zapier/to-do-manager-notion&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs.jest.jest_package&quot;: &quot;/home/mohammed/Desktop/zapier/to-do-manager/node_modules/jest&quot;,
+    &quot;nodejs.mocha.mocha_node_package_dir&quot;: &quot;/home/mohammed/Desktop/zapier/to-do-manager/node_modules/mocha&quot;,
+    &quot;nodejs_interpreter_path&quot;: &quot;node&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;npm.test.executor&quot;: &quot;Run&quot;,
+    &quot;npm.zapier-build.executor&quot;: &quot;Run&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;/home/mohammed/.local/share/JetBrains/Toolbox/apps/WebStorm/ch-0/233.14015.89/plugins/javascript-plugin/jsLanguageServicesImpl/external&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/dist" />
@@ -79,73 +111,61 @@
       <recent name="$PROJECT_DIR$/kit/foundations/microsoft" />
     </key>
   </component>
-  <component name="RunManager" selected="Jest.creates.map_tasks_in_list">
-    <configuration name="creates.edit_tasks_in_list" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
+  <component name="RunManager" selected="Jest.triggers.tasks_delta">
+    <configuration name="triggers.list_tasklists" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
       <node-interpreter value="project" />
       <jest-package value="$PROJECT_DIR$/node_modules/jest" />
       <working-dir value="$PROJECT_DIR$" />
       <envs />
       <scope-kind value="SUITE" />
-      <test-file value="$PROJECT_DIR$/src/test/creates/edit_tasks_in_list.test.js" />
+      <test-file value="$PROJECT_DIR$/src/test/triggers/list_tasklists.test.js" />
       <test-names>
-        <test-name value="creates.edit_tasks_in_list" />
+        <test-name value="triggers.list_tasklists" />
       </test-names>
       <method v="2" />
     </configuration>
-    <configuration name="creates.map_tasks_in_list" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
+    <configuration name="triggers.list_tasklists.should run" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
+      <node-interpreter value="project" />
+      <jest-package value="$PROJECT_DIR$/node_modules/jest" />
+      <working-dir value="$PROJECT_DIR$" />
+      <envs />
+      <scope-kind value="TEST" />
+      <test-file value="$PROJECT_DIR$/src/test/triggers/list_tasklists.test.js" />
+      <test-names>
+        <test-name value="triggers.list_tasklists" />
+        <test-name value="should run" />
+      </test-names>
+      <method v="2" />
+    </configuration>
+    <configuration name="triggers.tasks_delta" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
       <node-interpreter value="project" />
       <jest-package value="$PROJECT_DIR$/node_modules/jest" />
       <working-dir value="$PROJECT_DIR$" />
       <envs />
       <scope-kind value="SUITE" />
-      <test-file value="$PROJECT_DIR$/src/test/creates/map_tasks_in_list.test.js" />
+      <test-file value="$PROJECT_DIR$/src/test/triggers/tasks_delta.test.js" />
       <test-names>
-        <test-name value="creates.map_tasks_in_list" />
+        <test-name value="triggers.tasks_delta" />
       </test-names>
-      <method v="2" />
-    </configuration>
-    <configuration name="edit_tasks_in_list.test.js" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
-      <node-interpreter value="project" />
-      <jest-package value="$PROJECT_DIR$/node_modules/jest" />
-      <working-dir value="$PROJECT_DIR$" />
-      <envs />
-      <scope-kind value="TEST_FILE" />
-      <test-file value="$PROJECT_DIR$/src/test/creates/edit_tasks_in_list.test.js" />
-      <method v="2" />
-    </configuration>
-    <configuration name="map_tasks_in_list.test.js" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
-      <node-interpreter value="project" />
-      <jest-package value="$PROJECT_DIR$/node_modules/jest" />
-      <working-dir value="$PROJECT_DIR$" />
-      <envs />
-      <scope-kind value="TEST_FILE" />
-      <test-file value="$PROJECT_DIR$/src/test/creates/map_tasks_in_list.test.js" />
-      <method v="2" />
-    </configuration>
-    <configuration name="index.js" type="NodeJSConfigurationType" temporary="true" nameIsGenerated="true" node-parameters="--env-file=../.env" path-to-js-file="$PROJECT_DIR$/playground/index.js" working-dir="$PROJECT_DIR$/playground">
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="Jest.edit_tasks_in_list.test.js" />
-      <item itemvalue="Jest.map_tasks_in_list.test.js" />
-      <item itemvalue="Jest.creates.edit_tasks_in_list" />
-      <item itemvalue="Jest.creates.map_tasks_in_list" />
-      <item itemvalue="Node.js.index.js" />
+      <item itemvalue="Jest.triggers.tasks_delta" />
+      <item itemvalue="Jest.triggers.list_tasklists" />
+      <item itemvalue="Jest.triggers.list_tasklists.should run" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Jest.creates.map_tasks_in_list" />
-        <item itemvalue="Jest.creates.edit_tasks_in_list" />
-        <item itemvalue="Node.js.index.js" />
-        <item itemvalue="Jest.map_tasks_in_list.test.js" />
-        <item itemvalue="Jest.edit_tasks_in_list.test.js" />
+        <item itemvalue="Jest.triggers.tasks_delta" />
+        <item itemvalue="Jest.triggers.list_tasklists.should run" />
+        <item itemvalue="Jest.triggers.list_tasklists" />
       </list>
     </recent_temporary>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-1d06a55b98c1-74d2a5396914-JavaScript-WS-241.14494.109" />
+        <option value="bundled-js-predefined-1d06a55b98c1-3d8cd37a7330-JavaScript-WS-241.15989.9" />
       </set>
     </attachedChunks>
   </component>
@@ -162,11 +182,34 @@
       <workItem from="1711986616416" duration="32007000" />
       <workItem from="1712078290515" duration="2548000" />
       <workItem from="1712087176519" duration="7953000" />
-      <workItem from="1712155406890" duration="145876000" />
+      <workItem from="1712155406890" duration="146483000" />
+      <workItem from="1712862433786" duration="7584000" />
+      <workItem from="1713128207177" duration="1481000" />
+      <workItem from="1713135208792" duration="19000" />
+      <workItem from="1713135241035" duration="75000" />
+      <workItem from="1713138111996" duration="816000" />
+      <workItem from="1713185833697" duration="1074000" />
+      <workItem from="1713194813295" duration="19475000" />
+      <workItem from="1713280081613" duration="31602000" />
+      <workItem from="1713366403867" duration="11321000" />
+      <workItem from="1713387066215" duration="12923000" />
     </task>
+    <task id="LOCAL-00001" summary="Initial commit">
+      <option name="closed" value="true" />
+      <created>1712674677996</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1712674678024</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Initial commit" />
+    <option name="LAST_COMMIT_MESSAGE" value="Initial commit" />
   </component>
 </project>
