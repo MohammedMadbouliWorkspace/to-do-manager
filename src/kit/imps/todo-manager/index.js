@@ -853,15 +853,15 @@ class TodoManagerTasksDetector extends TodoManagerBase {
         const now = new Date()
 
         const [{fields: {date} = {}}] = await this._airtable
-            .base(process.env.AIRTABLE_BASE_ID)
-            .table(process.env.AIRTABLE_SYNC_CHECKPOINTS_TABLE_ID)
+            .base(this._airtableBaseId)
+            .table(this._airtableSyncCheckpointsTableId)
             .bulkCreate(
                 [
                     {
                         date: now
                     }
                 ]
-            ) || {}
+            ) || [{}]
 
         this._checkpointDate = date ? now : undefined
 

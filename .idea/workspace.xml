@@ -4,18 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b2fe04dd-9a14-41c8-a844-8b94adc14b73" name="Changes" comment="Initial commit">
-      <change afterPath="$PROJECT_DIR$/src/test/triggers/tasks_delta.test.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/triggers/tasks_delta.js" afterDir="false" />
+    <list default="true" id="b2fe04dd-9a14-41c8-a844-8b94adc14b73" name="Changes" comment="Fix: Tests config naming">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/creates/edit_tasks_in_list.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/creates/edit_tasks_in_list.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/creates/map_tasks_in_list.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/creates/map_tasks_in_list.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/kit/foundations/airtable/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/kit/foundations/airtable/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/kit/foundations/bulk/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/kit/foundations/bulk/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/kit/foundations/microsoft/todo/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/kit/foundations/microsoft/todo/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/kit/imps/todo-manager/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/kit/imps/todo-manager/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/kit/utils/iter/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/kit/utils/iter/index.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -57,48 +49,48 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;Jest.creates.edit_tasks_in_list.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.creates.map_tasks_in_list (1).executor&quot;: &quot;Run&quot;,
-    &quot;Jest.creates.map_tasks_in_list.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.edit_tasks_in_list.test.js.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.map_tasks_in_list.test.js.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.oauth2 app.can fetch an access token.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.oauth2 app.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.oauth2 app.generates an authorize URL.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.triggers.list_airtable_bases.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.triggers.list_airtable_tables.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.triggers.list_tasklists.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.triggers.list_tasklists.should run.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.triggers.tasks_delta (1).executor&quot;: &quot;Run&quot;,
-    &quot;Jest.triggers.tasks_delta.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.triggers.tasks_delta.should run.executor&quot;: &quot;Run&quot;,
-    &quot;Mocha.triggers.list_tasklists.executor&quot;: &quot;Run&quot;,
-    &quot;Node.js.edit_tasks_in_list.js.executor&quot;: &quot;Run&quot;,
-    &quot;Node.js.index.js.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;javascript.nodejs.core.library.configured.version&quot;: &quot;21.6.1&quot;,
-    &quot;javascript.nodejs.core.library.typings.version&quot;: &quot;20.11.30&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/mohammed/Desktop/zapier/to-do-manager-notion&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs.jest.jest_package&quot;: &quot;/home/mohammed/Desktop/zapier/to-do-manager/node_modules/jest&quot;,
-    &quot;nodejs.mocha.mocha_node_package_dir&quot;: &quot;/home/mohammed/Desktop/zapier/to-do-manager/node_modules/mocha&quot;,
-    &quot;nodejs_interpreter_path&quot;: &quot;node&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;npm.test.executor&quot;: &quot;Run&quot;,
-    &quot;npm.zapier-build.executor&quot;: &quot;Run&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;/home/mohammed/.local/share/JetBrains/Toolbox/apps/WebStorm/ch-0/233.14015.89/plugins/javascript-plugin/jsLanguageServicesImpl/external&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "Jest.creates.edit_tasks_in_list.executor": "Run",
+    "Jest.creates.map_tasks_in_list (1).executor": "Run",
+    "Jest.creates.map_tasks_in_list.executor": "Run",
+    "Jest.edit_tasks_in_list.test.js.executor": "Run",
+    "Jest.map_tasks_in_list.test.js.executor": "Run",
+    "Jest.oauth2 app.can fetch an access token.executor": "Run",
+    "Jest.oauth2 app.executor": "Run",
+    "Jest.oauth2 app.generates an authorize URL.executor": "Run",
+    "Jest.triggers.list_airtable_bases.executor": "Run",
+    "Jest.triggers.list_airtable_tables.executor": "Run",
+    "Jest.triggers.list_tasklists.executor": "Run",
+    "Jest.triggers.list_tasklists.should run.executor": "Run",
+    "Jest.triggers.tasks_delta (1).executor": "Run",
+    "Jest.triggers.tasks_delta.executor": "Run",
+    "Jest.triggers.tasks_delta.should run.executor": "Run",
+    "Mocha.triggers.list_tasklists.executor": "Run",
+    "Node.js.edit_tasks_in_list.js.executor": "Run",
+    "Node.js.index.js.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "git-widget-placeholder": "main",
+    "javascript.nodejs.core.library.configured.version": "21.6.1",
+    "javascript.nodejs.core.library.typings.version": "20.11.30",
+    "last_opened_file_path": "/home/mohammed/Desktop/zapier/to-do-manager",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs.jest.jest_package": "/home/mohammed/Desktop/zapier/to-do-manager/node_modules/jest",
+    "nodejs.mocha.mocha_node_package_dir": "/home/mohammed/Desktop/zapier/to-do-manager/node_modules/mocha",
+    "nodejs_interpreter_path": "node",
+    "nodejs_package_manager_path": "npm",
+    "npm.test.executor": "Run",
+    "npm.zapier-build.executor": "Run",
+    "settings.editor.selected.configurable": "preferences.lookFeel",
+    "ts.external.directory.path": "/home/mohammed/.local/share/JetBrains/Toolbox/apps/WebStorm/ch-0/233.14015.89/plugins/javascript-plugin/jsLanguageServicesImpl/external",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/dist" />
@@ -165,7 +157,7 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-1d06a55b98c1-3d8cd37a7330-JavaScript-WS-241.15989.9" />
+        <option value="bundled-js-predefined-1d06a55b98c1-2e7d6887c066-JavaScript-WS-241.15989.47" />
       </set>
     </attachedChunks>
   </component>
@@ -192,7 +184,8 @@
       <workItem from="1713194813295" duration="19475000" />
       <workItem from="1713280081613" duration="31602000" />
       <workItem from="1713366403867" duration="11321000" />
-      <workItem from="1713387066215" duration="12923000" />
+      <workItem from="1713387066215" duration="13963000" />
+      <workItem from="1713546005092" duration="3839000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit">
       <option name="closed" value="true" />
@@ -202,14 +195,43 @@
       <option name="project" value="LOCAL" />
       <updated>1712674678024</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Feat: Tasks Delta Trigger">
+      <option name="closed" value="true" />
+      <created>1713402671608</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1713402671609</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Fix: Tests config naming">
+      <option name="closed" value="true" />
+      <created>1713556715795</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1713556715795</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Initial commit" />
-    <option name="LAST_COMMIT_MESSAGE" value="Initial commit" />
+    <MESSAGE value="Feat: Tasks Delta Trigger" />
+    <MESSAGE value="Fix: Tests config naming" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fix: Tests config naming" />
   </component>
 </project>
