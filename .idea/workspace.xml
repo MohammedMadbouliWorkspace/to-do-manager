@@ -4,10 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b2fe04dd-9a14-41c8-a844-8b94adc14b73" name="Changes" comment="Fix: Tests config naming">
+    <list default="true" id="b2fe04dd-9a14-41c8-a844-8b94adc14b73" name="Changes" comment="Fix: Invalid config usage in _setCheckpointDate">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/kit/imps/todo-manager/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/kit/imps/todo-manager/index.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -185,7 +183,7 @@
       <workItem from="1713280081613" duration="31602000" />
       <workItem from="1713366403867" duration="11321000" />
       <workItem from="1713387066215" duration="13963000" />
-      <workItem from="1713546005092" duration="3839000" />
+      <workItem from="1713546005092" duration="5272000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit">
       <option name="closed" value="true" />
@@ -211,7 +209,15 @@
       <option name="project" value="LOCAL" />
       <updated>1713556715795</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Fix: Invalid config usage in _setCheckpointDate">
+      <option name="closed" value="true" />
+      <created>1713556847609</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1713556847609</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -232,6 +238,7 @@
     <MESSAGE value="Initial commit" />
     <MESSAGE value="Feat: Tasks Delta Trigger" />
     <MESSAGE value="Fix: Tests config naming" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fix: Tests config naming" />
+    <MESSAGE value="Fix: Invalid config usage in _setCheckpointDate" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fix: Invalid config usage in _setCheckpointDate" />
   </component>
 </project>

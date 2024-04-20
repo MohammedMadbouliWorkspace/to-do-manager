@@ -21,6 +21,8 @@ module.exports = {
                 }
             )
 
+            await manager.validateAccess()
+
             const data = await manager.tasksDelta.get()
 
             return !_.every(data, (value) => _.isArray(value) && _.isEmpty(value)) ? [{
