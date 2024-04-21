@@ -4,8 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b2fe04dd-9a14-41c8-a844-8b94adc14b73" name="Changes" comment="Fix: Invalid config usage in _setCheckpointDate">
+    <list default="true" id="b2fe04dd-9a14-41c8-a844-8b94adc14b73" name="Changes" comment="Fix: Add ms access token validation before processing task delta trigger">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/kit/imps/todo-manager/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/kit/imps/todo-manager/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/triggers/tasks_delta.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/triggers/tasks_delta.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -101,7 +105,7 @@
       <recent name="$PROJECT_DIR$/kit/foundations/microsoft" />
     </key>
   </component>
-  <component name="RunManager" selected="Jest.triggers.tasks_delta">
+  <component name="RunManager" selected="Node.js.index.js">
     <configuration name="triggers.list_tasklists" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
       <node-interpreter value="project" />
       <jest-package value="$PROJECT_DIR$/node_modules/jest" />
@@ -139,13 +143,18 @@
       </test-names>
       <method v="2" />
     </configuration>
+    <configuration name="index.js" type="NodeJSConfigurationType" temporary="true" nameIsGenerated="true" node-parameters="--env-file=../.env" path-to-js-file="index.js" working-dir="$PROJECT_DIR$/playground">
+      <method v="2" />
+    </configuration>
     <list>
       <item itemvalue="Jest.triggers.tasks_delta" />
       <item itemvalue="Jest.triggers.list_tasklists" />
       <item itemvalue="Jest.triggers.list_tasklists.should run" />
+      <item itemvalue="Node.js.index.js" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Node.js.index.js" />
         <item itemvalue="Jest.triggers.tasks_delta" />
         <item itemvalue="Jest.triggers.list_tasklists.should run" />
         <item itemvalue="Jest.triggers.list_tasklists" />
@@ -184,6 +193,9 @@
       <workItem from="1713366403867" duration="11321000" />
       <workItem from="1713387066215" duration="13963000" />
       <workItem from="1713546005092" duration="5272000" />
+      <workItem from="1713641740191" duration="782000" />
+      <workItem from="1713643131049" duration="1034000" />
+      <workItem from="1713644596328" duration="14508000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit">
       <option name="closed" value="true" />
@@ -217,7 +229,15 @@
       <option name="project" value="LOCAL" />
       <updated>1713556847609</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Fix: Add ms access token validation before processing task delta trigger">
+      <option name="closed" value="true" />
+      <created>1713641876517</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1713641876517</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -239,6 +259,7 @@
     <MESSAGE value="Feat: Tasks Delta Trigger" />
     <MESSAGE value="Fix: Tests config naming" />
     <MESSAGE value="Fix: Invalid config usage in _setCheckpointDate" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fix: Invalid config usage in _setCheckpointDate" />
+    <MESSAGE value="Fix: Add ms access token validation before processing task delta trigger" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fix: Add ms access token validation before processing task delta trigger" />
   </component>
 </project>

@@ -22,6 +22,7 @@
     "cross-fetch": "^4.0.0",
     "deep-object-diff": "^1.1.9",
     "lodash": "^4.17.21",
+    "moment-timezone": "^0.5.45",
     "uuid": "^9.0.1",
     "zapier-platform-core": "15.6.2"
   },
