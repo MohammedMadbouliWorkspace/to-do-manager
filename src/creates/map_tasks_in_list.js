@@ -57,6 +57,15 @@ module.exports = {
                 altersDynamicFields: false,
             },
             {
+                key: 'airtableSyncCheckpointsTableId',
+                label: 'Airtable Sync Checkpoints Table Id',
+                type: 'string',
+                dynamic: 'list_airtable_tables.id.name',
+                required: true,
+                list: false,
+                altersDynamicFields: false,
+            },
+            {
                 key: 'listId',
                 label: 'List',
                 type: 'string',
@@ -136,6 +145,7 @@ module.exports = {
                         baseId: bundle.inputData.airtableBaseId,
                         dataTableId: bundle.inputData.airtableDataTableId,
                         idsTableId: bundle.inputData.airtableIdsTableId,
+                        syncCheckpointsTableId: bundle.inputData.airtableSyncCheckpointsTableId
                     },
                     timeZone: bundle.inputData.timeZone
                 }
@@ -181,6 +191,8 @@ module.exports = {
                     ]
                 )
             )
+
+            await manager.setCheckpointDate()
 
             return {
                 id: uuidv4(),

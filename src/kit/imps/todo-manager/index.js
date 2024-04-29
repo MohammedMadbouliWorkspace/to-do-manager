@@ -2,12 +2,12 @@ const {asyncIter2Array, sleep} = require("../../utils/async");
 const {BatchRequestContent} = require("@microsoft/microsoft-graph-client");
 const {Action} = require("../../foundations/bulk");
 const _ = require('lodash');
-const {tandemIter, diff, uniquify} = require("../../utils/iter");
+const {tandemIter, diff, uniquify, merge, dynamic} = require("../../utils/iter");
 const {createMeBatchStep} = require("../../../microsoft/clients/graph/tools");
 const {Airtable} = require("../../foundations/airtable");
 const {Todo} = require("../../foundations/microsoft/todo");
 const createGraphClient = require("../../../microsoft/clients/graph");
-const {detailedDiff, updatedDiff} = require("deep-object-diff");
+const {detailedDiff} = require("deep-object-diff");
 const moment = require("moment-timezone")
 
 class TodoManagerBase {
@@ -146,6 +146,8 @@ class TodoManagerBase {
                         )
             }
         }
+        this._checkpointDate = undefined
+        this.setCheckpointDate = this._setCheckpointDate
     }
 
     changeViaBatch = async (msBatchRequestContentsGenerator, extension = null, returnAsEntries = true, extConnection = ["id", "id"]) => {
@@ -262,13 +264,13 @@ class TodoManagerBase {
                 ["notionId", "microsoftId", "notionData", "microsoftData"]
             )
 
-    editData = async (cells) => {
+    editData = async (cells, mapping = ["notionId", "microsoftId", "notionData", "microsoftData"]) => {
         await this._airtable
             .base(this._airtableBaseId)
             .table(this._airtableDataTableId)
             .bulkEditByCells(
                 cells,
-                ["notionId", "microsoftId", "notionData", "microsoftData"]
+                mapping
             )
     }
 
@@ -277,6 +279,46 @@ class TodoManagerBase {
             .base(this._airtableBaseId)
             .table(this._airtableDataTableId)
             .bulkDelete(recordIds)
+
+    _getCheckpointDate = async () => {
+        const {fields: {date} = {}} = await this._airtable
+            .base(this._airtableBaseId)
+            .table(this._airtableSyncCheckpointsTableId)
+            .getByArguments(
+                {
+                    sort: [
+                        {
+                            field: "date",
+                            direction: "desc"
+                        }
+                    ]
+                },
+                true
+            ) || {}
+
+        this._checkpointDate = date ? new Date(date) : undefined
+
+        return this._checkpointDate
+    }
+
+    _setCheckpointDate = async () => {
+        const now = new Date()
+
+        const [{fields: {date} = {}}] = await this._airtable
+            .base(this._airtableBaseId)
+            .table(this._airtableSyncCheckpointsTableId)
+            .bulkCreate(
+                [
+                    {
+                        date: now
+                    }
+                ]
+            ) || [{}]
+
+        this._checkpointDate = date ? now : undefined
+
+        return this._checkpointDate
+    }
 }
 
 class TodoManagerTasksHandler extends TodoManagerBase {
@@ -459,39 +501,28 @@ class TodoManagerEditedTasksHandler extends TodoManagerTasksHandler {
                     status,
                     checked,
                     deleted
-                ].filter(Boolean).length
+                ].filter(
+                    (x) => !_.isUndefined(x)
+                ).length
             ) {
 
-                yield (
+                yield dynamic(
                     {
                         type: "task",
-                        ...(
-                            deleted ?
-                                {
-                                    operation: "delete",
-                                    notionId,
-                                    id: notionId,
-                                    microsoftId,
-                                    airtableRecordId
-                                } :
-                                {
-                                    operation: "edit",
-                                    notionId,
-                                    id: notionId,
-                                    microsoftId,
-                                    airtableRecordId,
-                                    ...(title ? {title} : {}),
-                                    ...(startDateTime ? {startDateTime} : {}),
-                                    ...(dueDateTime ? {dueDateTime} : {}),
-                                    ...(reminderDateTime ? {reminderDateTime} : {}),
-                                    ...(status ? {status} : {}),
-                                }
-                        ),
-
+                        operation: deleted ? "delete" : "edit",
+                        notionId,
+                        id: notionId,
+                        microsoftId,
+                        airtableRecordId,
+                        title,
+                        startDateTime,
+                        dueDateTime,
+                        reminderDateTime,
+                        status
                     }
                 )
 
-                if ((title !== undefined) || (checked !== undefined)) {
+                if (title || _.isBoolean(checked)) {
                     editedChecklistItemsEntries.push(
                         ...(
                             restParentNotionIds.map(
@@ -499,10 +530,12 @@ class TodoManagerEditedTasksHandler extends TodoManagerTasksHandler {
                                     [
                                         parentNotionId,
                                         notionId,
-                                        {
-                                            ...(title !== undefined ? {displayName: title} : {}),
-                                            ...(checked !== undefined ? {isChecked: checked} : {})
-                                        }
+                                        dynamic(
+                                            {
+                                                displayName: title,
+                                                isChecked: checked
+                                            }
+                                        )
                                     ]
                             )
                         )
@@ -636,18 +669,20 @@ class TodoManagerEditedTasksHandler extends TodoManagerTasksHandler {
                         }
                     )
 
-            yield {
-                type: "checklistItem",
-                operation: "edit",
-                id: TodoManager._createBatchRequestId(parentNotionId, notionId),
-                notionId,
-                parentNotionId,
-                microsoftId,
-                parentMicrosoftId,
-                airtableRecordId,
-                ...(displayName !== undefined ? {displayName} : {}),
-                ...(isChecked !== undefined ? {isChecked} : {})
-            }
+            yield dynamic(
+                {
+                    type: "checklistItem",
+                    operation: "edit",
+                    id: TodoManager._createBatchRequestId(parentNotionId, notionId),
+                    notionId,
+                    parentNotionId,
+                    microsoftId,
+                    parentMicrosoftId,
+                    airtableRecordId,
+                    displayName,
+                    isChecked
+                }
+            )
         }
 
         for (const [parentNotionId, notionId, {displayName, isChecked}] of newChecklistItemsEntries) {
@@ -663,16 +698,18 @@ class TodoManagerEditedTasksHandler extends TodoManagerTasksHandler {
                     }
                 ) || {}
 
-            yield {
-                type: "checklistItem",
-                operation: "create",
-                id: TodoManager._createBatchRequestId(parentNotionId, notionId),
-                notionId,
-                parentNotionId,
-                parentMicrosoftId,
-                displayName,
-                isChecked
-            }
+            yield dynamic(
+                {
+                    type: "checklistItem",
+                    operation: "create",
+                    id: TodoManager._createBatchRequestId(parentNotionId, notionId),
+                    notionId,
+                    parentNotionId,
+                    parentMicrosoftId,
+                    displayName,
+                    isChecked
+                }
+            )
         }
 
         for (const [notionId] of checklistItemEntries) {
@@ -826,47 +863,6 @@ class TodoManagerNewTasksHandler extends TodoManagerTasksHandler {
 class TodoManagerTasksDetector extends TodoManagerBase {
     constructor(props) {
         super(props);
-        this._checkpointDate = undefined
-    }
-
-    _getCheckpointDate = async () => {
-        const {fields: {date} = {}} = await this._airtable
-            .base(this._airtableBaseId)
-            .table(this._airtableSyncCheckpointsTableId)
-            .getByArguments(
-                {
-                    sort: [
-                        {
-                            field: "date",
-                            direction: "desc"
-                        }
-                    ]
-                },
-                true
-            ) || {}
-
-        this._checkpointDate = date ? new Date(date) : undefined
-
-        return this._checkpointDate
-    }
-
-    _setCheckpointDate = async () => {
-        const now = new Date()
-
-        const [{fields: {date} = {}}] = await this._airtable
-            .base(this._airtableBaseId)
-            .table(this._airtableSyncCheckpointsTableId)
-            .bulkCreate(
-                [
-                    {
-                        date: now
-                    }
-                ]
-            ) || [{}]
-
-        this._checkpointDate = date ? now : undefined
-
-        return this._checkpointDate
     }
 
     async* _generatePatches(connectedDataset, unconnectedDataset) {
@@ -882,45 +878,103 @@ class TodoManagerTasksDetector extends TodoManagerBase {
             airtableId,
             pastProps: {
                 startDateTime: pastStartDateTime,
-                dueDateTime: pastDueDateTime
+                dueDateTime: pastDueDateTime,
+                reminderDateTime: pastReminderDateTime
             },
             updatedProps: {
                 title,
                 status,
                 detailedTitle = {},
                 startDateTime,
-                dueDateTime
+                dueDateTime,
+                reminderDateTime
             },
             updatedChecklistItems: {
                 past: pastChecklistItems,
                 edited: editedChecklistItems,
                 new: newChecklistItems
             },
-            microsoftData
+            microsoftData,
+            pastNotionData
         } of TodoManager._diffTodoTasksInCD(connectedDataset)) {
 
-            const checked = status !== undefined ? status === 'completed' : null
-
-            yield {
-                operation: "edit",
-                target: "notion",
-                type: "task",
-                ids: {
-                    notionId,
-                    microsoftId: parentMicrosoftId,
-                    airtableId,
+            const checked = !_.isUndefined(status) ? status === 'completed' : undefined
+            const notionDate = TodoManager._createNotionDateObject(
+                {
+                    startDateTime,
+                    reminderDateTime,
+                    dueDateTime
                 },
-                data: _.pickBy(
-                    {
-                        ...detailedTitle,
-                        checked,
-                        start: TodoManager._getDateFromMSDateTimeTimeZone(startDateTime)?.toISOString(true),
-                        end: TodoManager._getDateFromMSDateTimeTimeZone(dueDateTime)?.toISOString(true)
+                {
+                    pastStartDateTime,
+                    pastDueDateTime
+                },
+                pastNotionData,
+                this._timeZone
+            )
+
+            yield merge(
+                {
+                    operation: "edit",
+                    target: "notion",
+                    type: "task",
+                    ids: {
+                        notionId,
+                        microsoftId: parentMicrosoftId,
+                        airtableId,
                     },
-                    _.identity()
-                ),
-                syncData: {
-                    microsoftData: microsoftData
+                    data: dynamic(
+                        {
+                            ...detailedTitle,
+                            checked,
+                            date: notionDate
+                        }
+                    )
+                },
+                (reminderDateTime || startDateTime) ? {
+                    syncDataBending: true
+                } : {
+                    syncData: {
+                        microsoftData: microsoftData
+                    }
+                }
+            )
+
+            if (reminderDateTime || startDateTime) {
+                yield {
+                    operation: "edit",
+                    target: "microsoft",
+                    type: "task",
+                    ids: {
+                        notionId,
+                        microsoftId: parentMicrosoftId,
+                        airtableId,
+                    },
+                    data: dynamic(
+                        merge(
+                            {title, status},
+                            reminderDateTime ?
+                                {
+                                    startDateTime: TodoManager._createMSDateTimeTimeZone(
+                                        TodoManager._getDateFromMSDateTimeTimeZone(reminderDateTime),
+                                        this._timeZone
+                                    )
+                                } :
+                                {
+                                    reminderDateTime: TodoManager._createMSDateTimeTimeZone(
+                                        TodoManager._mergeDates(
+                                            TodoManager._getDateFromMSDateTimeTimeZone(startDateTime)?.toISOString?.(true),
+                                            _.get(
+                                                pastNotionData,
+                                                "properties.التاريخ.date.start"
+                                            ),
+                                            this._timeZone
+                                        )?.tz(this._timeZone)?.toISOString?.(true),
+                                        this._timeZone
+                                    )
+                                }
+                        )
+                    )
                 }
             }
 
@@ -930,13 +984,13 @@ class TodoManagerTasksDetector extends TodoManagerBase {
                         {
                             microsoftId,
                             parentMicrosoftId,
-                            data: {
-                                ...(displayName !== undefined ? {title: displayName} : {}),
-                                ...(isChecked !== undefined ? {
-                                    status: isChecked ? "completed" : "notStarted",
+                            data: dynamic(
+                                {
+                                    title: displayName,
+                                    status: _.isBoolean(isChecked) ? isChecked ? "completed" : "notStarted" : undefined,
                                     checked: isChecked
-                                } : {})
-                            }
+                                }
+                            )
                         }
                     )
                 )
@@ -959,18 +1013,16 @@ class TodoManagerTasksDetector extends TodoManagerBase {
                     target: "notion",
                     type: "task",
                     ids: {
-                        microsoftId,
+                        checklistItemMicrosoftId: microsoftId,
                         parentNotionId: notionId,
                         parentMicrosoftId
                     },
-                    data: _.pickBy(
+                    data: dynamic(
                         {
                             ...TodoManager._covertTodoTaskTitleToObject(displayName),
                             checked: isChecked,
-                            start: TodoManager._getDateFromMSDateTimeTimeZone(startDateTime || pastStartDateTime)?.toISOString(true),
-                            end: TodoManager._getDateFromMSDateTimeTimeZone(dueDateTime || pastDueDateTime)?.toISOString(true)
-                        },
-                        _.identity()
+                            date: notionDate
+                        }
                     ),
                     syncDataBending: true
                 }
@@ -980,24 +1032,40 @@ class TodoManagerTasksDetector extends TodoManagerBase {
                     target: "microsoft",
                     type: "task",
                     ids: {
-                        microsoftId,
+                        checklistItemMicrosoftId: microsoftId,
                         parentNotionId: notionId,
                         parentMicrosoftId
                     },
-                    data: _.pickBy(
+                    data: dynamic(
                         {
                             title: displayName,
-                            status: isChecked !== undefined ? isChecked ? "completed" : "notStarted" : null,
+                            status: _.isBoolean(isChecked) ? isChecked ? "completed" : "notStarted" : undefined,
                             startDateTime: TodoManager._createMSDateTimeTimeZone(
-                                startDateTime?.dateTime || pastStartDateTime?.dateTime,
+                                TodoManager._getDateFromMSDateTimeTimeZone(reminderDateTime) ||
+                                TodoManager._getDateFromMSDateTimeTimeZone(startDateTime) ||
+                                TodoManager._getDateFromMSDateTimeTimeZone(pastStartDateTime) ||
+                                TodoManager._getDateFromMSDateTimeTimeZone(pastReminderDateTime),
+                                this._timeZone
+                            ),
+                            reminderDateTime: TodoManager._createMSDateTimeTimeZone(
+                                TodoManager._getDateFromMSDateTimeTimeZone(reminderDateTime) ||
+                                TodoManager._mergeDates(
+                                    TodoManager._getDateFromMSDateTimeTimeZone(startDateTime),
+                                    TodoManager._getDateFromMSDateTimeTimeZone(pastReminderDateTime)
+                                ) ||
+                                TodoManager._mergeDates(
+                                    TodoManager._getDateFromMSDateTimeTimeZone(pastStartDateTime),
+                                    TodoManager._getDateFromMSDateTimeTimeZone(pastReminderDateTime)
+                                ) ||
+                                TodoManager._getDateFromMSDateTimeTimeZone(pastReminderDateTime),
                                 this._timeZone
                             ),
                             dueDateTime: TodoManager._createMSDateTimeTimeZone(
-                                dueDateTime?.dateTime || pastDueDateTime?.dateTime,
+                                TodoManager._getDateFromMSDateTimeTimeZone(dueDateTime) ||
+                                TodoManager._getDateFromMSDateTimeTimeZone(pastDueDateTime),
                                 this._timeZone
                             )
-                        },
-                        _.identity()
+                        }
                     )
                 }
             }
@@ -1006,10 +1074,12 @@ class TodoManagerTasksDetector extends TodoManagerBase {
                 checklistItemBendingEdits.push(
                     {
                         notionId,
-                        data: {
-                            ...(title !== undefined ? {displayName: title} : {}),
-                            ...(status !== undefined ? {isChecked: checked} : {})
-                        }
+                        data: dynamic(
+                            {
+                                displayName: title,
+                                isChecked: checked
+                            }
+                        )
                     }
                 )
             }
@@ -1150,12 +1220,11 @@ class TodoManagerTasksDetector extends TodoManagerBase {
                     microsoftId,
                     airtableId,
                 },
-                data: _.pickBy(
+                data: dynamic(
                     {
                         ...TodoManager._covertTodoTaskTitleToObject(title),
                         checked,
-                    },
-                    _.identity()
+                    }
                 ),
                 syncDataBending: true
             }
@@ -1169,12 +1238,11 @@ class TodoManagerTasksDetector extends TodoManagerBase {
                     microsoftId,
                     airtableId,
                 },
-                data: _.pickBy(
+                data: dynamic(
                     {
                         title,
                         status
-                    },
-                    _.identity()
+                    }
                 )
             }
         }
@@ -1226,11 +1294,30 @@ class TodoManagerTasksDetector extends TodoManagerBase {
                     status,
                     detailedTitle = {},
                     startDateTime,
+                    reminderDateTime,
                     dueDateTime,
                     checklistItems
                 }
             } of TodoManager._prepareTodoTasksInUCD(unconnectedDataset)
             ) {
+
+            // let start, end
+            //
+            // if(startDateTime || reminderDateTime || dueDateTime) {
+            //     start = TodoManager._getDateFromMSDateTimeTimeZone(reminderDateTime || startDateTime)?.tz(this._timeZone)?.toISOString?.(true)
+            //     end = TodoManager._getDateFromMSDateTimeTimeZone(dueDateTime)?.tz(this._timeZone)?.toISOString?.(true)
+            // }
+
+            const notionDate = TodoManager._createNotionDateObject(
+                {
+                    startDateTime,
+                    reminderDateTime,
+                    dueDateTime
+                },
+                {},
+                {},
+                this._timeZone
+            )
 
             yield {
                 operation: "create",
@@ -1239,14 +1326,14 @@ class TodoManagerTasksDetector extends TodoManagerBase {
                 ids: {
                     microsoftId: parentMicrosoftId
                 },
-                data: _.pickBy(
+                data: dynamic(
                     {
                         ...detailedTitle,
-                        checked: status !== undefined ? status === 'completed' : null,
-                        start: TodoManager._getDateFromMSDateTimeTimeZone(startDateTime)?.toISOString(true),
-                        end: TodoManager._getDateFromMSDateTimeTimeZone(dueDateTime)?.toISOString(true)
-                    },
-                    _.identity()
+                        checked: !_.isUndefined(status) ? status === 'completed' : undefined,
+                        date: notionDate
+                        // start,
+                        // end
+                    }
                 ),
                 syncData: {
                     microsoftData: microsoftData
@@ -1259,17 +1346,17 @@ class TodoManagerTasksDetector extends TodoManagerBase {
                     target: "notion",
                     type: "task",
                     ids: {
-                        microsoftId,
+                        checklistItemMicrosoftId: microsoftId,
                         parentMicrosoftId
                     },
-                    data: _.pickBy(
+                    data: dynamic(
                         {
                             ...TodoManager._covertTodoTaskTitleToObject(displayName),
                             checked: isChecked,
-                            start: TodoManager._getDateFromMSDateTimeTimeZone(startDateTime)?.toISOString(true),
-                            end: TodoManager._getDateFromMSDateTimeTimeZone(dueDateTime)?.toISOString(true)
-                        },
-                        _.identity()
+                            date: notionDate
+                            // start,
+                            // end
+                        }
                     ),
                     syncDataBending: true
                 }
@@ -1279,37 +1366,31 @@ class TodoManagerTasksDetector extends TodoManagerBase {
                     target: "microsoft",
                     type: "task",
                     ids: {
-                        microsoftId,
+                        checklistItemMicrosoftId: microsoftId,
                         parentMicrosoftId
                     },
-                    data: _.pickBy(
+                    data: dynamic(
                         {
                             title: displayName,
-                            status: isChecked !== undefined ? isChecked ? "completed" : "notStarted" : null,
+                            status: _.isBoolean(isChecked) ? isChecked ? "completed" : "notStarted" : undefined,
                             startDateTime: TodoManager._createMSDateTimeTimeZone(
-                                startDateTime?.dateTime,
+                                TodoManager._getDateFromMSDateTimeTimeZone(reminderDateTime || startDateTime),
                                 this._timeZone
                             ),
                             dueDateTime: TodoManager._createMSDateTimeTimeZone(
-                                dueDateTime?.dateTime,
+                                TodoManager._getDateFromMSDateTimeTimeZone(dueDateTime),
                                 this._timeZone
                             )
-                        },
-                        _.identity()
+                        }
                     )
                 }
             }
         }
     }
 
-    get = async () => {
+    _getUpdates = async () => {
         const checkpointDate = await this._getCheckpointDate()
-        const notionPatchesGroups = {
-            toEdit: [],
-            toCreate: [],
-            toDelete: [],
-            toRefresh: []
-        }
+
         const cd = []
         const ucd = []
 
@@ -1353,6 +1434,19 @@ class TodoManagerTasksDetector extends TodoManagerBase {
                     }
                 )
         )
+
+        return [cd, ucd]
+    }
+
+    get = async () => {
+        const notionPatchesGroups = {
+            toEdit: [],
+            toCreate: [],
+            toDelete: [],
+            toRefresh: []
+        }
+
+        const [cd, ucd] = await this._getUpdates()
 
         const patchesGroups = _.groupBy(
             await asyncIter2Array(this._generatePatches(cd, ucd)),
@@ -1423,7 +1517,7 @@ class TodoManagerTasksDetector extends TodoManagerBase {
                             ids,
                             data,
                             syncData: {
-                                microsoftData: microsoftData
+                                microsoftData
                             }
                         }
                     )
@@ -1440,10 +1534,10 @@ class TodoManagerTasksDetector extends TodoManagerBase {
                     await this.changeViaBatch(
                         TodoManager._createMSBatchRequestContents(
                             createMicrosoftTask,
-                            ({operation, type, ids: {microsoftId}, data}) =>
+                            ({operation, type, ids: {checklistItemMicrosoftId}, data}) =>
                                 this._batchStepCreators?.[operation]?.[type]?.(
                                     {
-                                        id: microsoftId,
+                                        id: checklistItemMicrosoftId,
                                         ...data
                                     }
                                 )
@@ -1451,16 +1545,19 @@ class TodoManagerTasksDetector extends TodoManagerBase {
                         null,
                         false
                     ),
-                    "ids.microsoftId",
+                    "ids.checklistItemMicrosoftId",
                     "id",
                     "flat"
                 ).map(
                     ([, {ids, data}, {body: microsoftData}]) => (
                         {
-                            ids,
+                            ids: {
+                                ...ids,
+                                microsoftId: microsoftData?.id
+                            },
                             data,
                             syncData: {
-                                microsoftData: microsoftData
+                                microsoftData
                             }
                         }
                     )
@@ -1516,7 +1613,7 @@ class TodoManagerTasksDetector extends TodoManagerBase {
                     {
                         ids,
                         syncData: {
-                            microsoftData: microsoftData
+                            microsoftData
                         }
                     }
                 )
@@ -1539,25 +1636,77 @@ class TodoManager extends TodoManagerBase {
         this.tasksDelta = new TodoManagerTasksDetector(props)
     }
 
-    static _getDateFromMSDateTimeTimeZone = ({dateTime, timeZone}={}) => {
-        try {
-            return moment(dateTime).tz(timeZone)
-        } catch (e) {
-            return null
+    static _getDateFromMSDateTimeTimeZone = ({dateTime, timeZone = "UTC"} = {}) => {
+        if (dateTime) {
+            try {
+                return moment.tz(dateTime, timeZone).tz(timeZone)
+            } catch (e) {
+                return undefined
+            }
+        } else {
+            return undefined
         }
     }
 
-    static _createMSDateTimeTimeZone = (date, timeZone) => {
+    static _createMSDateTimeTimeZone = (date, timeZone = "UTC") => {
         try {
-            const dateTime = moment(date).utc().tz(timeZone)
-            const dataTimeString = dateTime.format("YYYY-MM-DDTHH:mm:ss.SSSSSSS")
+            const dateTime = _.isUndefined(date) || _.isNull(date) ? moment.invalid() : moment.tz(date, timeZone).tz(timeZone)
+            const dataTimeString = dateTime?.format?.("YYYY-MM-DDTHH:mm:ss.SSSSSSS")
+
+            if (!dateTime.isValid()) {
+                return undefined
+            }
+
             return {
                 dateTime: dataTimeString,
                 timeZone
             }
         } catch (e) {
-            return null
+            return undefined
         }
+    }
+
+    static _createNotionDateObject = (updatedDateTimeProps, pastDateTimeProps, pastNotionData, timeZone) => {
+        const {pastStartDateTime, pastDueDateTime} = pastDateTimeProps || {}
+        const {startDateTime, reminderDateTime, dueDateTime} = updatedDateTimeProps || {}
+
+        let start, end;
+
+        if(!_.isUndefined(startDateTime) || !_.isUndefined(reminderDateTime) || !_.isUndefined(dueDateTime)) {
+            start =
+                TodoManager._getDateFromMSDateTimeTimeZone(reminderDateTime)?.tz(timeZone) ||
+                TodoManager._mergeDates(
+                    TodoManager._getDateFromMSDateTimeTimeZone(startDateTime || pastStartDateTime)?.toISOString?.(true),
+                    _.get(
+                        pastNotionData,
+                        "properties.التاريخ.date.start"
+                    ),
+                    timeZone
+                )?.tz(timeZone)
+
+            end = TodoManager._mergeDates(
+                TodoManager._getDateFromMSDateTimeTimeZone(dueDateTime || pastDueDateTime)?.toISOString?.(true),
+                _.get(
+                    pastNotionData,
+                    "properties.التاريخ.date.end"
+                ),
+                timeZone
+            )?.tz(timeZone)
+        }
+
+        const notionDate =
+            (_.isNull(startDateTime) && !_.isNull(dueDateTime) && _.isNull(reminderDateTime)) ||
+            _.isNull(reminderDateTime) ?
+                null :
+                dynamic(
+                    {
+                        start: start?.toISOString?.(true),
+                        end: _.isNull(dueDateTime) ? undefined : start > end ? start?.toISOString?.(true) : end?.toISOString?.(true)
+                    }
+                )
+
+        return _.isEmpty(notionDate) && !_.isNull(notionDate) ? undefined : notionDate
+
     }
 
     static _createMSInputsList = (notionTasksList, timeZone) =>
@@ -1565,7 +1714,7 @@ class TodoManager extends TodoManagerBase {
             (
                 {
                     id,
-                    icon: {emoji} = {},
+                    icon,
                     properties: {
                         "الاسم": {
                             title: [
@@ -1575,7 +1724,7 @@ class TodoManager extends TodoManagerBase {
                             ] = [{}],
                         } = {},
                         "التاريخ": {
-                            date: {start, end} = {},
+                            date: deadlineRange,
                         } = {},
                         "تم": {checkbox: checked} = {},
                         "التفصيلات": {relation: children = []} = {},
@@ -1584,27 +1733,33 @@ class TodoManager extends TodoManagerBase {
                     archived: deleted,
                     editedParentNotionIds
                 } = {}
-            ) => (
-                {
-                    notionId: id,
-                    ...((emoji !== undefined || title !== undefined) ? {title: [emoji, title].filter(Boolean).join(" ")} : {}),
-                    ...(checked !== undefined ? {status: checked ? 'completed' : 'notStarted'} : {}),
-                    ...((start !== undefined && timeZone !== undefined) ? {
-                        reminderDateTime: TodoManager._createMSDateTimeTimeZone(start, timeZone),
-                        startDateTime: TodoManager._createMSDateTimeTimeZone(start, timeZone)
-                    } : {}),
-                    ...(((end !== undefined || start !== undefined) && timeZone !== undefined) ? {
-                        dueDateTime: end
-                            ? TodoManager._createMSDateTimeTimeZone(end, timeZone)
-                            : TodoManager._createMSDateTimeTimeZone(start, timeZone)
-                    } : {}),
-                    childrenNotionIds: children.map(({id}) => id),
-                    parentNotionIds: parents.map(({id}) => id),
-                    ...(editedParentNotionIds ? {editedParentNotionIds} : {}),
-                    ...(checked !== undefined ? {checked} : {}),
-                    ...(deleted !== undefined ? {deleted} : {}),
-                }
-            )
+            ) => {
+
+                const {emoji} = icon || {}
+                const {start, end} = deadlineRange || {}
+                const isStartDateAvailable = start && timeZone
+                const isEndDateAvailable = end && timeZone
+                const status = _.isBoolean(checked) ? checked ? 'completed' : 'notStarted' : undefined
+
+                return dynamic(
+                    {
+                        notionId: id,
+                        title: emoji || title ? [emoji, title].filter(Boolean).join(" ") : undefined,
+                        status,
+                        reminderDateTime: _.isNull(deadlineRange) || _.isNull(start) ? null : isStartDateAvailable ? TodoManager._createMSDateTimeTimeZone(start, timeZone) : undefined,
+                        startDateTime: _.isNull(deadlineRange) || _.isNull(start) ? null : isStartDateAvailable ? TodoManager._createMSDateTimeTimeZone(start, timeZone) : undefined,
+                        dueDateTime:
+                            _.isNull(deadlineRange) || _.isNull(end) ? null :
+                                isEndDateAvailable ? TodoManager._createMSDateTimeTimeZone(end, timeZone) :
+                                    isStartDateAvailable ? TodoManager._createMSDateTimeTimeZone(start, timeZone) : undefined,
+                        childrenNotionIds: children.map(({id}) => id),
+                        parentNotionIds: parents.map(({id}) => id),
+                        editedParentNotionIds,
+                        checked,
+                        deleted
+                    }
+                )
+            }
         )
 
     static _createMSInputsMap = (msInputsList) => new Map(
@@ -1667,6 +1822,25 @@ class TodoManager extends TodoManagerBase {
 
     static _createBatchRequestId = (...args) => args.join("::::")
 
+    static _mergeDates = (dayDate, timeDate, timeZone = "UTC") => {
+        const timeZonedDayDate = _.isUndefined(dayDate) || _.isNull(dayDate) ? moment.invalid() : moment.tz(dayDate, timeZone).tz(timeZone)
+        const timeZonedTimeDate = _.isUndefined(timeDate) || _.isNull(timeDate) ? moment.invalid() : moment.tz(timeDate, timeZone).tz(timeZone)
+
+        if (!timeZonedDayDate.isValid()) {
+            return undefined
+        }
+
+        if (!timeZonedTimeDate.isValid()) {
+            return timeZonedDayDate
+        }
+
+        return timeZonedDayDate
+            .hour(timeZonedTimeDate.hour())
+            .minute(timeZonedTimeDate.minute())
+            .second(timeZonedTimeDate.second())
+            .millisecond(timeZonedTimeDate.millisecond());
+    }
+
     static _covertTodoTaskTitleToObject = (title) => {
         const regex = /(?<emoji1>\p{Emoji})\s*(?<title1>.+)\s*|(?<title2>.+)\s(?<emoji2>\p{Emoji})|(?<emoji3>\p{Emoji})\s*|(?<title3>.+)\s*/gu;
 
@@ -1676,8 +1850,8 @@ class TodoManager extends TodoManagerBase {
             const {emoji1, emoji2, emoji3, title1, title2, title3} = match.groups
 
             return {
-                emoji: emoji1 || emoji2 || emoji3 || "",
-                title: title1 || title2 || title3 || "",
+                emoji: emoji1 || emoji2 || emoji3 || undefined,
+                title: title1 || title2 || title3 || undefined,
             }
         } else return {}
 
@@ -1717,7 +1891,7 @@ class TodoManager extends TodoManagerBase {
                     ]
                 )
             ).length ?
-                _.merge(
+                merge(
                     _.pick(
                         current,
                         [
@@ -1728,7 +1902,7 @@ class TodoManager extends TodoManagerBase {
                     ),
                     updates
                 ) :
-                _.merge(
+                merge(
                     _.pick(
                         current,
                         [
@@ -1761,13 +1935,19 @@ class TodoManager extends TodoManagerBase {
     static _diffTodoTasksInCD = function* (connectedDataset) {
         for (const [, current, {
             id: airtableId,
-            fields: {notionId, microsoftId, microsoftData: pastAsJSON}
+            fields: {notionId, microsoftId, microsoftData: pastAsJSON, notionData: notionPastAsJSON}
         }] of connectedDataset) {
             const past = JSON.parse(pastAsJSON)
+            const notionPast = JSON.parse(notionPastAsJSON)
 
-            const difference = updatedDiff(
+            const {added, updated, deleted} = detailedDiff(
                 past,
                 current
+            )
+
+            const difference = merge(
+                added,
+                updated
             )
 
             const [pastChecklistItems, restChecklistItems, newChecklistItems, editedChecklistItems] = diff(
@@ -1776,17 +1956,36 @@ class TodoManager extends TodoManagerBase {
                 "id"
             )
 
-            const updates = _.merge(
+            const updates = merge(
                 _.pick(
                     difference,
                     [
                         "status",
                         "title",
                         "startDateTime",
-                        "dueDateTime",
+                        "reminderDateTime",
+                        "dueDateTime"
                     ]
                 ),
-                difference?.title ? {detailedTitle: TodoManager._covertTodoTaskTitleToObject(difference?.title)} : {}
+                difference?.title ? {detailedTitle: TodoManager._covertTodoTaskTitleToObject(difference?.title)} : {},
+                difference?.startDateTime ? {
+                    startDateTime: merge(
+                        past?.startDateTime,
+                        difference?.startDateTime
+                    )
+                } : _.has(deleted, 'startDateTime') ? {startDateTime: null} : {},
+                difference?.reminderDateTime ? {
+                    reminderDateTime: merge(
+                        past?.reminderDateTime,
+                        difference?.reminderDateTime
+                    )
+                } : _.has(deleted, 'reminderDateTime') ? {reminderDateTime: null} : {},
+                difference?.dueDateTime ? {
+                    dueDateTime: merge(
+                        past?.dueDateTime,
+                        difference?.dueDateTime
+                    )
+                } : _.has(deleted, 'dueDateTime') ? {dueDateTime: null} : {},
             )
 
             if (
@@ -1808,7 +2007,8 @@ class TodoManager extends TodoManagerBase {
                             "status",
                             "title",
                             "startDateTime",
-                            "dueDateTime"
+                            "reminderDateTime",
+                            "dueDateTime",
                         ]
                     ),
                     updatedChecklistItems: {
@@ -1818,6 +2018,7 @@ class TodoManager extends TodoManagerBase {
                         edited: editedChecklistItems
                     },
                     microsoftData: current,
+                    pastNotionData: notionPast
                 }
 
         }
@@ -1827,13 +2028,14 @@ class TodoManager extends TodoManagerBase {
         for (const microsoftData of unconnectedDataset) {
             const {id: microsoftId} = microsoftData
 
-            const updates = _.merge(
+            const updates = merge(
                 _.pick(
                     microsoftData,
                     [
                         "status",
                         "title",
                         "startDateTime",
+                        "reminderDateTime",
                         "dueDateTime",
                         "checklistItems"
                     ]

@@ -4,12 +4,16 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b2fe04dd-9a14-41c8-a844-8b94adc14b73" name="Changes" comment="Fix: Add ms access token validation before processing task delta trigger">
+    <list default="true" id="b2fe04dd-9a14-41c8-a844-8b94adc14b73" name="Changes" comment="Fix: Time and Time Zones issues using moment-timezone">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/creates/edit_tasks_in_list.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/creates/edit_tasks_in_list.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/creates/map_tasks_in_list.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/creates/map_tasks_in_list.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/kit/foundations/airtable/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/kit/foundations/airtable/index.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/kit/imps/todo-manager/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/kit/imps/todo-manager/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/triggers/tasks_delta.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/triggers/tasks_delta.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/kit/utils/iter/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/kit/utils/iter/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/creates/edit_tasks_in_list.test.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/creates/edit_tasks_in_list.test.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/creates/map_tasks_in_list.test.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/creates/map_tasks_in_list.test.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -77,7 +81,7 @@
     "git-widget-placeholder": "main",
     "javascript.nodejs.core.library.configured.version": "21.6.1",
     "javascript.nodejs.core.library.typings.version": "20.11.30",
-    "last_opened_file_path": "/home/mohammed/Desktop/zapier/to-do-manager",
+    "last_opened_file_path": "/home/mohammed/Desktop/zapier/to-do-manager-notion",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -106,15 +110,27 @@
     </key>
   </component>
   <component name="RunManager" selected="Node.js.index.js">
-    <configuration name="triggers.list_tasklists" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
+    <configuration name="creates.edit_tasks_in_list" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
       <node-interpreter value="project" />
       <jest-package value="$PROJECT_DIR$/node_modules/jest" />
       <working-dir value="$PROJECT_DIR$" />
       <envs />
       <scope-kind value="SUITE" />
-      <test-file value="$PROJECT_DIR$/src/test/triggers/list_tasklists.test.js" />
+      <test-file value="$PROJECT_DIR$/src/test/creates/edit_tasks_in_list.test.js" />
       <test-names>
-        <test-name value="triggers.list_tasklists" />
+        <test-name value="creates.edit_tasks_in_list" />
+      </test-names>
+      <method v="2" />
+    </configuration>
+    <configuration name="creates.map_tasks_in_list" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
+      <node-interpreter value="project" />
+      <jest-package value="$PROJECT_DIR$/node_modules/jest" />
+      <working-dir value="$PROJECT_DIR$" />
+      <envs />
+      <scope-kind value="SUITE" />
+      <test-file value="$PROJECT_DIR$/src/test/creates/map_tasks_in_list.test.js" />
+      <test-names>
+        <test-name value="creates.map_tasks_in_list" />
       </test-names>
       <method v="2" />
     </configuration>
@@ -147,17 +163,19 @@
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="Jest.triggers.tasks_delta" />
-      <item itemvalue="Jest.triggers.list_tasklists" />
+      <item itemvalue="Jest.creates.edit_tasks_in_list" />
+      <item itemvalue="Jest.creates.map_tasks_in_list" />
       <item itemvalue="Jest.triggers.list_tasklists.should run" />
+      <item itemvalue="Jest.triggers.tasks_delta" />
       <item itemvalue="Node.js.index.js" />
     </list>
     <recent_temporary>
       <list>
         <item itemvalue="Node.js.index.js" />
+        <item itemvalue="Jest.creates.edit_tasks_in_list" />
+        <item itemvalue="Jest.creates.map_tasks_in_list" />
         <item itemvalue="Jest.triggers.tasks_delta" />
         <item itemvalue="Jest.triggers.list_tasklists.should run" />
-        <item itemvalue="Jest.triggers.list_tasklists" />
       </list>
     </recent_temporary>
   </component>
@@ -195,7 +213,23 @@
       <workItem from="1713546005092" duration="5272000" />
       <workItem from="1713641740191" duration="782000" />
       <workItem from="1713643131049" duration="1034000" />
-      <workItem from="1713644596328" duration="14508000" />
+      <workItem from="1713644596328" duration="14816000" />
+      <workItem from="1713695508756" duration="222000" />
+      <workItem from="1713696062788" duration="531000" />
+      <workItem from="1713697727175" duration="396000" />
+      <workItem from="1713698785337" duration="86000" />
+      <workItem from="1713698891236" duration="29000" />
+      <workItem from="1713713997182" duration="26000" />
+      <workItem from="1713719095724" duration="593000" />
+      <workItem from="1713724148920" duration="2022000" />
+      <workItem from="1713729566631" duration="11003000" />
+      <workItem from="1713799149192" duration="14038000" />
+      <workItem from="1713884742340" duration="13603000" />
+      <workItem from="1713993359785" duration="24000" />
+      <workItem from="1714144596712" duration="5446000" />
+      <workItem from="1714157535210" duration="294000" />
+      <workItem from="1714158480681" duration="12659000" />
+      <workItem from="1714316332204" duration="21928000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit">
       <option name="closed" value="true" />
@@ -237,7 +271,15 @@
       <option name="project" value="LOCAL" />
       <updated>1713641876517</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Fix: Time and Time Zones issues using moment-timezone">
+      <option name="closed" value="true" />
+      <created>1713661938824</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1713661938824</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -260,6 +302,7 @@
     <MESSAGE value="Fix: Tests config naming" />
     <MESSAGE value="Fix: Invalid config usage in _setCheckpointDate" />
     <MESSAGE value="Fix: Add ms access token validation before processing task delta trigger" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fix: Add ms access token validation before processing task delta trigger" />
+    <MESSAGE value="Fix: Time and Time Zones issues using moment-timezone" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fix: Time and Time Zones issues using moment-timezone" />
   </component>
 </project>

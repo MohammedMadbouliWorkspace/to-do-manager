@@ -57,6 +57,15 @@ module.exports = {
                 altersDynamicFields: false,
             },
             {
+                key: 'airtableSyncCheckpointsTableId',
+                label: 'Airtable Sync Checkpoints Table Id',
+                type: 'string',
+                dynamic: 'list_airtable_tables.id.name',
+                required: true,
+                list: false,
+                altersDynamicFields: false,
+            },
+            {
                 key: 'listId',
                 label: 'List',
                 type: 'string',
@@ -88,6 +97,7 @@ module.exports = {
                         baseId: bundle.inputData.airtableBaseId,
                         dataTableId: bundle.inputData.airtableDataTableId,
                         idsTableId: bundle.inputData.airtableIdsTableId,
+                        syncCheckpointsTableId: bundle.inputData.airtableSyncCheckpointsTableId
                     },
                     timeZone: bundle.inputData.timeZone
                 }
@@ -108,19 +118,36 @@ module.exports = {
                             airtableRecordId,
                         }
                     }
-                ) => operation === 'delete' && airtableRecordId)
+                ) => operation === 'delete' && airtableRecordId
+            )
 
             const [deletedTasks, deletedChecklistItems] = _.partition(deletedItems, ({extension: {type}}) => type === 'task')
 
-            const data = Action.connect(
+            const [connectedTasks, , unconnectedTasks] = Action.connect(
                 notionTasks,
                 restItems,
                 "id",
                 "extension.notionId",
-                "flat"
+                "flat",
+                true
             )
 
-            const [restTasks, restChecklistItems] = _.partition(data, ([, , {extension: {type}}]) => type === 'task')
+            const [restTasks, restChecklistItems] = _.partition(connectedTasks, ([, , {extension: {type}}]) => type === 'task')
+
+            const refreshedTasks = _.filter(unconnectedTasks, ({extension: {type}}) => type === 'task')
+
+            await manager.editData(
+                refreshedTasks.map(
+                    ({
+                        body: microsoftData,
+                        extension: {airtableRecordId}
+                    }) => [
+                        airtableRecordId,
+                        JSON.stringify(microsoftData)
+                    ]
+                ),
+                ["microsoftData"]
+            )
 
             await manager.editData(
                 restTasks.map(
@@ -164,6 +191,8 @@ module.exports = {
                     ({extension: {airtableRecordId}}) => airtableRecordId
                 )
             )
+
+            await manager.setCheckpointDate()
 
             return {
                 id: uuidv4(),

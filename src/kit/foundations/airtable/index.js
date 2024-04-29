@@ -203,7 +203,7 @@ class Table {
                                 {
                                     fields: Object.fromEntries(
                                         mapping.map(
-                                            (field, i) => [[field], cell[i]]
+                                            (field, i) => [field, cell[i]]
                                         )
                                     )
                                 }
@@ -226,7 +226,7 @@ class Table {
                                     id: cell[0],
                                     fields: Object.fromEntries(
                                         mapping.map(
-                                            (field, i) => [[field], cell[i+1]]
+                                            (field, i) => [field, cell[i+1]]
                                         )
                                     )
                                 }
