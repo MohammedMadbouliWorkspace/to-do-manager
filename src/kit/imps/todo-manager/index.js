@@ -1874,7 +1874,7 @@ class TodoManager extends TodoManagerBase {
             const updates = _.pick(
                 difference.updated,
                 [
-                    "icon.emoji",
+                    "icon",
                     "properties.الاسم.title.0.text.content",
                     "properties.التاريخ.date",
                     "properties.تم.checkbox",
@@ -1886,7 +1886,7 @@ class TodoManager extends TodoManagerBase {
                 _.pick(
                     updates,
                     [
-                        "icon.emoji",
+                        "icon",
                         "properties.الاسم.title.0.text.content",
                     ]
                 )
@@ -1895,7 +1895,7 @@ class TodoManager extends TodoManagerBase {
                     _.pick(
                         current,
                         [
-                            "icon.emoji",
+                            "icon",
                             "properties.الاسم.title.0.text.content",
                             "properties.التفصيلات.relation"
                         ]
