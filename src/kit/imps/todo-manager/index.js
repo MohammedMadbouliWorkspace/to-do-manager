@@ -1287,17 +1287,6 @@ class TodoManagerTasksDetector extends TodoManagerBase {
                 }
             }
 
-            yield {
-                operation: "delete",
-                target: "microsoft",
-                type: "task",
-                ids: {
-                    notionId,
-                    microsoftId,
-                    idsTableAirtableId,
-                    airtableId,
-                }
-            }
         }
 
         for (
