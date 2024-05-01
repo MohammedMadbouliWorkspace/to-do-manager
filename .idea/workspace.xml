@@ -4,8 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b2fe04dd-9a14-41c8-a844-8b94adc14b73" name="Changes" comment="Big-Fix: Sort of random alpha bugs">
+    <list default="true" id="b2fe04dd-9a14-41c8-a844-8b94adc14b73" name="Changes" comment="Fix: Props differentiation bug">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/kit/imps/todo-manager/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/kit/imps/todo-manager/index.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -101,7 +102,7 @@
       <recent name="$PROJECT_DIR$/kit/foundations/microsoft" />
     </key>
   </component>
-  <component name="RunManager" selected="Node.js.index.js">
+  <component name="RunManager" selected="Jest.creates.edit_tasks_in_list">
     <configuration name="creates.edit_tasks_in_list" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
       <node-interpreter value="project" />
       <jest-package value="$PROJECT_DIR$/node_modules/jest" />
@@ -163,10 +164,10 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Node.js.index.js" />
         <item itemvalue="Jest.creates.edit_tasks_in_list" />
-        <item itemvalue="Jest.creates.map_tasks_in_list" />
         <item itemvalue="Jest.triggers.tasks_delta" />
+        <item itemvalue="Node.js.index.js" />
+        <item itemvalue="Jest.creates.map_tasks_in_list" />
         <item itemvalue="Jest.triggers.list_tasklists.should run" />
       </list>
     </recent_temporary>
@@ -221,7 +222,9 @@
       <workItem from="1714144596712" duration="5446000" />
       <workItem from="1714157535210" duration="294000" />
       <workItem from="1714158480681" duration="12659000" />
-      <workItem from="1714316332204" duration="22843000" />
+      <workItem from="1714316332204" duration="24073000" />
+      <workItem from="1714422623319" duration="1541000" />
+      <workItem from="1714517638897" duration="10506000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit">
       <option name="closed" value="true" />
@@ -279,7 +282,15 @@
       <option name="project" value="LOCAL" />
       <updated>1714352751503</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="Fix: Props differentiation bug">
+      <option name="closed" value="true" />
+      <created>1714353825880</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1714353825880</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -304,6 +315,7 @@
     <MESSAGE value="Fix: Add ms access token validation before processing task delta trigger" />
     <MESSAGE value="Fix: Time and Time Zones issues using moment-timezone" />
     <MESSAGE value="Big-Fix: Sort of random alpha bugs" />
-    <option name="LAST_COMMIT_MESSAGE" value="Big-Fix: Sort of random alpha bugs" />
+    <MESSAGE value="Fix: Props differentiation bug" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fix: Props differentiation bug" />
   </component>
 </project>

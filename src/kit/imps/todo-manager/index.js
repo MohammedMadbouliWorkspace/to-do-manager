@@ -899,19 +899,6 @@ class TodoManagerTasksDetector extends TodoManagerBase {
         } of TodoManager._diffTodoTasksInCD(connectedDataset)) {
 
             const checked = !_.isUndefined(status) ? status === 'completed' : undefined
-            const notionDate = TodoManager._createNotionDateObject(
-                {
-                    startDateTime,
-                    reminderDateTime,
-                    dueDateTime
-                },
-                {
-                    pastStartDateTime,
-                    pastDueDateTime
-                },
-                pastNotionData,
-                this._timeZone
-            )
 
             yield merge(
                 {
@@ -927,7 +914,20 @@ class TodoManagerTasksDetector extends TodoManagerBase {
                         {
                             ...detailedTitle,
                             checked,
-                            date: notionDate
+                            date: TodoManager._createNotionDateObject(
+                                {
+                                    startDateTime,
+                                    reminderDateTime,
+                                    dueDateTime
+                                },
+                                {
+                                    pastStartDateTime,
+                                    pastReminderDateTime,
+                                    pastDueDateTime
+                                },
+                                pastNotionData,
+                                this._timeZone
+                            )
                         }
                     )
                 },
@@ -1021,7 +1021,21 @@ class TodoManagerTasksDetector extends TodoManagerBase {
                         {
                             ...TodoManager._covertTodoTaskTitleToObject(displayName),
                             checked: isChecked,
-                            date: notionDate
+                            date: TodoManager._createNotionDateObject(
+                                {
+                                    startDateTime,
+                                    reminderDateTime,
+                                    dueDateTime
+                                },
+                                {
+                                    pastStartDateTime,
+                                    pastReminderDateTime,
+                                    pastDueDateTime
+                                },
+                                pastNotionData,
+                                this._timeZone,
+                                true
+                            )
                         }
                     ),
                     syncDataBending: true
@@ -1377,6 +1391,13 @@ class TodoManagerTasksDetector extends TodoManagerBase {
                                 TodoManager._getDateFromMSDateTimeTimeZone(reminderDateTime || startDateTime),
                                 this._timeZone
                             ),
+                            reminderDateTime: TodoManager._createMSDateTimeTimeZone(
+                                TodoManager._getDateFromMSDateTimeTimeZone(reminderDateTime) ||
+                                TodoManager._mergeDates(
+                                    TodoManager._getDateFromMSDateTimeTimeZone(startDateTime),
+                                ),
+                                this._timeZone
+                            ),
                             dueDateTime: TodoManager._createMSDateTimeTimeZone(
                                 TodoManager._getDateFromMSDateTimeTimeZone(dueDateTime),
                                 this._timeZone
@@ -1666,15 +1687,15 @@ class TodoManager extends TodoManagerBase {
         }
     }
 
-    static _createNotionDateObject = (updatedDateTimeProps, pastDateTimeProps, pastNotionData, timeZone) => {
-        const {pastStartDateTime, pastDueDateTime} = pastDateTimeProps || {}
+    static _createNotionDateObject = (updatedDateTimeProps, pastDateTimeProps, pastNotionData, timeZone, forceCreate=false) => {
+        const {pastStartDateTime, pastReminderDateTime, pastDueDateTime} = pastDateTimeProps || {}
         const {startDateTime, reminderDateTime, dueDateTime} = updatedDateTimeProps || {}
 
         let start, end;
 
-        if(!_.isUndefined(startDateTime) || !_.isUndefined(reminderDateTime) || !_.isUndefined(dueDateTime)) {
+        if(!_.isUndefined(startDateTime) || !_.isUndefined(reminderDateTime) || !_.isUndefined(dueDateTime) || forceCreate) {
             start =
-                TodoManager._getDateFromMSDateTimeTimeZone(reminderDateTime)?.tz(timeZone) ||
+                TodoManager._getDateFromMSDateTimeTimeZone(reminderDateTime || pastReminderDateTime)?.tz(timeZone) ||
                 TodoManager._mergeDates(
                     TodoManager._getDateFromMSDateTimeTimeZone(startDateTime || pastStartDateTime)?.toISOString?.(true),
                     _.get(
