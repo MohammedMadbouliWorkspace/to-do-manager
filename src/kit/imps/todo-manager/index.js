@@ -70,7 +70,7 @@ class TodoManagerBase {
                             'create',
                             {
                                 title,
-                                startDateTime,
+                                // startDateTime,
                                 dueDateTime,
                                 reminderDateTime,
                                 status
@@ -119,7 +119,7 @@ class TodoManagerBase {
                             'edit',
                             {
                                 title,
-                                startDateTime,
+                                // startDateTime,
                                 dueDateTime,
                                 reminderDateTime,
                                 status

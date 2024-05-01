@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b2fe04dd-9a14-41c8-a844-8b94adc14b73" name="Changes" comment="Fix: Props differentiation bug">
+    <list default="true" id="b2fe04dd-9a14-41c8-a844-8b94adc14b73" name="Changes" comment="Fix: DateTime config in new checklist-items in edited tasks">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/kit/imps/todo-manager/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/kit/imps/todo-manager/index.js" afterDir="false" />
     </list>
@@ -224,7 +224,7 @@
       <workItem from="1714158480681" duration="12659000" />
       <workItem from="1714316332204" duration="24073000" />
       <workItem from="1714422623319" duration="1541000" />
-      <workItem from="1714517638897" duration="10506000" />
+      <workItem from="1714517638897" duration="10830000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit">
       <option name="closed" value="true" />
@@ -290,7 +290,15 @@
       <option name="project" value="LOCAL" />
       <updated>1714353825880</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="Fix: DateTime config in new checklist-items in edited tasks">
+      <option name="closed" value="true" />
+      <created>1714536483859</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1714536483859</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -316,6 +324,7 @@
     <MESSAGE value="Fix: Time and Time Zones issues using moment-timezone" />
     <MESSAGE value="Big-Fix: Sort of random alpha bugs" />
     <MESSAGE value="Fix: Props differentiation bug" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fix: Props differentiation bug" />
+    <MESSAGE value="Fix: DateTime config in new checklist-items in edited tasks" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fix: DateTime config in new checklist-items in edited tasks" />
   </component>
 </project>
